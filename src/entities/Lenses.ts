@@ -24,7 +24,7 @@ export class Lenses {
   @Column('varchar', { name: 'focalLength', length: 100 })
   focalLength: string | null;
 
-  @Column('double', { name: 'aperture', precision: 22 })
+  @Column('float', { name: 'aperture' })
   aperture: number | null;
 
   @Column('enum', { name: 'type', enum: ['prime', 'zoom'] })

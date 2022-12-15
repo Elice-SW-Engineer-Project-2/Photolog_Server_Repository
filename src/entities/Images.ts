@@ -34,10 +34,10 @@ export class Images {
   @Column('int', { primary: true, name: 'cameraId' })
   cameraId: number;
 
-  @Column('double', { name: 'lattitude', precision: 22 })
-  lattitude: number | null;
+  @Column('double', { name: 'latitude' })
+  latitude: number | null;
 
-  @Column('double', { name: 'longitude', precision: 22 })
+  @Column('double', { name: 'longitude' })
   longitude: number | null;
 
   @Column('text', { name: 'locationInfo' })

@@ -11,6 +11,8 @@ import { Comments } from './Comments';
 import { Likes } from './Likes';
 import { Posts } from './Posts';
 import { Profile } from './Profile';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { Exclude } from 'class-transformer';
 
 @Entity('users', { schema: 'photolog' })
 export class Users {
@@ -18,13 +20,18 @@ export class Users {
   id: number;
 
   @Column('varchar', { name: 'email', length: 50 })
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
 
-  @Column('varchar', { name: 'password', nullable: true, length: 20 })
-  password: string | null;
+  @Exclude({ toPlainOnly: true })
+  @Column('varchar', { name: 'password', length: 20 })
+  password?: string;
 
-  @Column('varchar', { name: 'profileImage', nullable: true, length: 255 })
-  profileImage: string | null;
+  @Column('varchar', { name: 'nickname', length: 20 })
+  @IsString()
+  @IsNotEmpty()
+  nickname: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -32,6 +39,7 @@ export class Users {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Exclude()
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date | null;
 
