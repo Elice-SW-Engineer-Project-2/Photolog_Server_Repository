@@ -6,6 +6,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Posts } from './Posts';
@@ -15,13 +16,13 @@ import { Users } from './Users';
 @Index('FK_posts_TO_likes_1', ['postId'], {})
 @Entity('likes', { schema: 'photolog' })
 export class Likes {
-  @Column('int', { primary: true, name: 'id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('int', { primary: true, name: 'userId' })
+  @Column('int', { name: 'userId' })
   userId: number;
 
-  @Column('int', { primary: true, name: 'postId' })
+  @Column('int', { name: 'postId' })
   postId: number;
 
   @CreateDateColumn()

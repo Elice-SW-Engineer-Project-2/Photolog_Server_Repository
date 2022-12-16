@@ -1,10 +1,10 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Cameras } from './Cameras';
 import { Lenses } from './Lenses';
 
 @Entity('companies', { schema: 'photolog' })
 export class Companies {
-  @Column('int', { primary: true, name: 'id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column('varchar', { name: 'name', length: 100 })

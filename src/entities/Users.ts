@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -25,13 +26,8 @@ export class Users {
   email: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column('varchar', { name: 'password', length: 20 })
-  password?: string;
-
-  @Column('varchar', { name: 'nickname', length: 20 })
-  @IsString()
-  @IsNotEmpty()
-  nickname: string;
+  @Column('varchar', { name: 'password', length: 255 })
+  password: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -52,6 +48,6 @@ export class Users {
   @OneToMany(() => Posts, (posts) => posts.user)
   posts: Posts[];
 
-  @OneToMany(() => Profile, (profile) => profile.user)
-  profiles: Profile[];
+  @OneToOne(() => Profile, (profile) => profile.user)
+  profiles: Profile;
 }

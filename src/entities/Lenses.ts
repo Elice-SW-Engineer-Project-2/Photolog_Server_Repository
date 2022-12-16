@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Images } from './Images';
 import { Companies } from './Companies';
@@ -12,10 +13,10 @@ import { Companies } from './Companies';
 @Index('FK_companies_TO_lenses_1', ['companyId'], {})
 @Entity('lenses', { schema: 'photolog' })
 export class Lenses {
-  @Column('int', { primary: true, name: 'id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('int', { primary: true, name: 'companyId' })
+  @Column('int', { name: 'companyId' })
   companyId: number;
 
   @Column('varchar', { name: 'model', length: 100 })

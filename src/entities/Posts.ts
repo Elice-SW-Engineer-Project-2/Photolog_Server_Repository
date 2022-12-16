@@ -22,7 +22,7 @@ export class Posts {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('int', { primary: true, name: 'userId' })
+  @Column('int', { name: 'userId' })
   userId: number;
 
   @Column('varchar', { name: 'title', length: 255 })

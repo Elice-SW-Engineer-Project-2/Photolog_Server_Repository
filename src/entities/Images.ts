@@ -6,6 +6,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Cameras } from './Cameras';
@@ -14,24 +15,24 @@ import { Lenses } from './Lenses';
 import { Posts } from './Posts';
 
 @Index('FK_posts_TO_images_1', ['postId'], {})
-@Index('FK_imageURL_TO_images_1', ['imageId'], {})
+@Index('FK_imageURL_TO_images_1', ['imageUrlId'], {})
 @Index('FK_lenses_TO_images_1', ['lensId'], {})
 @Index('FK_cameras_TO_images_1', ['cameraId'], {})
 @Entity('images', { schema: 'photolog' })
 export class Images {
-  @Column('int', { primary: true, name: 'id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('int', { primary: true, name: 'postId' })
+  @Column('int', { name: 'postId' })
   postId: number;
 
-  @Column('int', { primary: true, name: 'imageId' })
-  imageId: number;
+  @Column('int', { name: 'imageUrlId' })
+  imageUrlId: number;
 
-  @Column('int', { primary: true, name: 'lensId' })
+  @Column('int', { name: 'lensId' })
   lensId: number;
 
-  @Column('int', { primary: true, name: 'cameraId' })
+  @Column('int', { name: 'cameraId' })
   cameraId: number;
 
   @Column('double', { name: 'latitude' })
@@ -66,7 +67,7 @@ export class Images {
     onDelete: 'NO ACTION',
     onUpdate: 'NO ACTION',
   })
-  @JoinColumn([{ name: 'imageId', referencedColumnName: 'id' }])
+  @JoinColumn([{ name: 'imageUrlId', referencedColumnName: 'id' }])
   image: ImageUrl;
 
   @ManyToOne(() => Lenses, (lenses) => lenses.images, {

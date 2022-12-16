@@ -6,6 +6,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Posts } from './Posts';
@@ -14,10 +15,13 @@ import { Tags } from './Tags';
 @Index('FK_tags_TO_hashtags_1', ['tagId'], {})
 @Entity('hashtags', { schema: 'photolog' })
 export class Hashtags {
-  @Column('int', { primary: true, name: 'postId' })
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column('int', { name: 'postId' })
   postId: number;
 
-  @Column('int', { primary: true, name: 'tagId' })
+  @Column('int', { name: 'tagId' })
   tagId: number;
 
   @CreateDateColumn()

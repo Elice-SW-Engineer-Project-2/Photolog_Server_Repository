@@ -3,13 +3,12 @@ import { errorMsg } from 'src/common/messages/erro.messages';
 import { UserSignUpDto } from './dto/user.signup.dto';
 import { UsersDao } from './users.dao';
 import * as bcrypt from 'bcrypt';
-import { Users } from 'src/entities';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly userDao: UsersDao) {}
 
-  async signUp(userSignupDto: UserSignUpDto): Promise<Users> {
+  async signUp(userSignupDto: UserSignUpDto): Promise<void> {
     const { email, password, nickname } = userSignupDto;
 
     const userByEmail = await this.userDao.findByEmail(email);
@@ -28,7 +27,6 @@ export class UsersService {
     );
 
     const toSaveUser = { email, password: hashedPassword, nickname };
-
-    return await this.userDao.saveUser(toSaveUser);
+    await this.userDao.saveUser(toSaveUser);
   }
 }
