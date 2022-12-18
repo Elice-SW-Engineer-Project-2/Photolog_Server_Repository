@@ -1,0 +1,28 @@
+import { Injectable } from '@nestjs/common';
+import { S3 } from 'aws-sdk';
+import { s3 } from 'src/common/aws/s3';
+import { plainNumberToMegabyte } from 'src/common/utils/plainNumberToMegabyte';
+import { v4 as uuid } from 'uuid';
+
+@Injectable()
+export class PresignedUrlService {
+  presignedUrl(fileExtention: string) {
+    const fileName = `original/${uuid()}.${fileExtention}`;
+    const presignedUrlExpires: number = parseInt(
+      process.env.S3_PRESIGNED_EXPIRES,
+    );
+
+    const imageLimitCapacity: number = plainNumberToMegabyte(
+      parseInt(process.env.S3_IMAGE_LIMIT_CAPA),
+    );
+
+    const params: S3.PresignedPost.Params = {
+      Bucket: process.env.S3_BUCKET_NAME,
+      Fields: { key: fileName },
+      Expires: presignedUrlExpires,
+      Conditions: [['content-length-range', 0, imageLimitCapacity]],
+    };
+
+    return s3.createPresignedPost(params);
+  }
+}

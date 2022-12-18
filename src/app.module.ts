@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import * as entities from './entities';
+import { PresignedUrlController } from './presignedURL/presigned-url.controller';
+import { PresignedUrlModule } from './presignedURL/presigned-url.module';
 
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
@@ -21,13 +23,14 @@ const inputEntities = [...Object.values(entities)];
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: inputEntities,
-      synchronize: true,
+      synchronize: false,
       logging: true, // TODO : 배포시 false
     }),
     TypeOrmModule.forFeature(),
     UsersModule,
+    PresignedUrlModule,
   ],
-  controllers: [AppController, UsersController],
+  controllers: [AppController, UsersController, PresignedUrlController],
   providers: [AppService],
 })
 export class AppModule {}

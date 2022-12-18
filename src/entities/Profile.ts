@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 import {
   Column,
@@ -28,6 +29,7 @@ export class Profile {
   @Column('int', { name: 'userId' })
   userId: number;
 
+  @ApiProperty()
   @Column('varchar', { name: 'nickname', length: 20 })
   @IsString()
   @IsNotEmpty()
