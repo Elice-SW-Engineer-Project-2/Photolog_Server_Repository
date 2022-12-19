@@ -14,17 +14,20 @@ import { Posts } from './Posts';
 import { Profile } from './Profile';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('users', { schema: 'photolog' })
 export class Users {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ApiProperty()
   @Column('varchar', { name: 'email', length: 50 })
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
+  @ApiProperty()
   @Exclude({ toPlainOnly: true })
   @Column('varchar', { name: 'password', length: 255 })
   password: string;
