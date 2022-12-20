@@ -1,7 +1,8 @@
 import * as AWS from 'aws-sdk';
 import * as dotenv from 'dotenv';
-dotenv.config();
-console.log(process.env.S3_ACCESS_KEY_ID);
+dotenv.config({
+  path: process.env.NODE_ENV == 'staging' ? '.env.staging' : '.env.dev',
+});
 
 const s3: AWS.S3 = new AWS.S3({ useAccelerateEndpoint: true });
 s3.config.update({
