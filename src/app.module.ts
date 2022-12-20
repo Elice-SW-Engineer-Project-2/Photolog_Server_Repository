@@ -9,6 +9,8 @@ import { PresignedUrlModule } from './presignedURL/presigned-url.module';
 
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
+import { PostsModule } from './posts/posts.module';
+import { PostsController } from './posts/posts.controller';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -33,8 +35,14 @@ const inputEntities = [...Object.values(entities)];
     TypeOrmModule.forFeature(),
     UsersModule,
     PresignedUrlModule,
+    PostsModule,
   ],
-  controllers: [AppController, UsersController, PresignedUrlController],
+  controllers: [
+    AppController,
+    UsersController,
+    PresignedUrlController,
+    PostsController,
+  ],
   providers: [AppService],
 })
 export class AppModule {}
