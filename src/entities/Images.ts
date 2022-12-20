@@ -68,7 +68,7 @@ export class Images {
     onUpdate: 'NO ACTION',
   })
   @JoinColumn([{ name: 'imageUrlId', referencedColumnName: 'id' }])
-  image: ImageUrl;
+  imageUrl: ImageUrl;
 
   @ManyToOne(() => Lenses, (lenses) => lenses.images, {
     onDelete: 'NO ACTION',

@@ -6,7 +6,7 @@ export class Tags {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('varchar', { name: 'name', nullable: true, length: 20 })
+  @Column('varchar', { name: 'name', nullable: true, length: 20, unique: true })
   name: string | null;
 
   @OneToMany(() => Hashtags, (hashtags) => hashtags.tag)

@@ -1,9 +1,11 @@
 export class CreatePostDto {
+  userId: number;
+
   title: string;
 
   content: string;
 
-  imageURL: string;
+  imageUrlId: number;
 
   lensId: number;
 
@@ -16,4 +18,6 @@ export class CreatePostDto {
   locationInfo: string;
 
   takenAt: Date;
+
+  hashtags: string[];
 }
