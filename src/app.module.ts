@@ -11,6 +11,8 @@ import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { PostsController } from './posts/posts.controller';
+import { AuthModule } from './auth/auth.module';
+import { AuthController } from './auth/auth.controller';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -36,12 +38,14 @@ const inputEntities = [...Object.values(entities)];
     UsersModule,
     PhotosModule,
     PostsModule,
+    AuthModule,
   ],
   controllers: [
     AppController,
     UsersController,
     PhotosController,
     PostsController,
+    AuthController,
   ],
   providers: [AppService],
 })
