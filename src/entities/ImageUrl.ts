@@ -10,7 +10,7 @@ export class ImageUrl {
   @Column('varchar', { name: 'url', length: 255 })
   url: string | null;
 
-  @OneToMany(() => Images, (images) => images.image)
+  @OneToMany(() => Images, (images) => images.imageUrl)
   images: Images[];
 
   @OneToMany(() => Profile, (profile) => profile.image)

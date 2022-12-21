@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -47,12 +48,15 @@ export class Images {
   @Column('datetime', { name: 'takenAt' })
   takenAt: Date | null;
 
+  @Exclude()
   @CreateDateColumn()
   createdAt: Date;
 
+  @Exclude()
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Exclude()
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date | null;
 
@@ -68,7 +72,7 @@ export class Images {
     onUpdate: 'NO ACTION',
   })
   @JoinColumn([{ name: 'imageUrlId', referencedColumnName: 'id' }])
-  image: ImageUrl;
+  imageUrl: ImageUrl;
 
   @ManyToOne(() => Lenses, (lenses) => lenses.images, {
     onDelete: 'NO ACTION',

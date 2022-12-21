@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -6,13 +6,13 @@ import { AppService } from './app.service';
 import * as entities from './entities';
 import { PhotosController } from './photos/photos.controller';
 import { PhotosModule } from './photos/photos.module';
-
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { PostsController } from './posts/posts.controller';
 import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
+import { LoggerMiddleware } from './middlewares/logger.middleware';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -49,4 +49,8 @@ const inputEntities = [...Object.values(entities)];
   ],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
