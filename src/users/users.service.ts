@@ -17,6 +17,9 @@ export class UsersService {
     private dataSource: DataSource,
   ) {}
 
+  async findById(id: number): Promise<Users> {
+    return this.usersRepository.findOne({ where: { id } });
+  }
   async findByEmail(email: string): Promise<Users> {
     return this.usersRepository.findOne({ where: { email } });
   }

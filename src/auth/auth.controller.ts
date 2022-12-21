@@ -20,8 +20,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: AuthDto): Promise<any> {
-    const { email, password } = body;
-    return this.authService.login(email, password);
+    return this.authService.login(body);
   }
 
   // @Post('refresh')
