@@ -179,12 +179,12 @@ export class PostsService {
           .orIgnore()
           .execute();
 
-        const foundTagAfterInsert: Tags[] = await queryRunner.manager
+        const foundTagsAfterInsert: Tags[] = await queryRunner.manager
           .getRepository(Tags)
           .find({ where: tagsToInsert });
 
         const toSaveHashtags: { postId: number; tagId: number }[] =
-          foundTagAfterInsert.map((item) => ({
+          foundTagsAfterInsert.map((item) => ({
             postId: id,
             tagId: item.id,
           }));
