@@ -8,12 +8,15 @@ import {
   UseFilters,
   ParseIntPipe,
   Put,
+  HttpCode,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create.post.dto';
 import { UpdatePostDto } from './dto/update.post.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/exceptions/httpException.filter';
+import { ReadPostDto } from './dto/read.post.dto';
 
 @ApiTags('포스트 API')
 @UseFilters(HttpExceptionFilter)
@@ -26,19 +29,24 @@ export class PostsController {
     description: '*hashtag 배열은 중복값을 가지면 안됩니다.',
   })
   @Post()
+  @HttpCode(201)
   //TODO : createDto userId 대체하기
   async createPost(@Body() createPostDto: CreatePostDto) {
     return this.postsService.createPost(createPostDto);
   }
 
+  @ApiOperation({
+    summary: '포스트 불러오기(무한 스크롤)',
+    description: '무한스크롤을 위한 포스트 불러오기',
+  })
   @Get()
-  readAllPosts() {
-    return this.postsService.readAllPosts();
+  readPosts(@Query() readPostDto: ReadPostDto) {
+    return this.postsService.readPosts(readPostDto);
   }
 
   @ApiOperation({
-    summary: '특정 게시물 불러오기',
-    description: 'post id를 이용해 게시물 불러오기',
+    summary: '특정 포스트 불러오기',
+    description: 'post id를 이용해 포스트 불러오기',
   })
   @Get(':id')
   async readPost(@Param('id', ParseIntPipe) id: number) {
@@ -57,8 +65,12 @@ export class PostsController {
     return this.postsService.updatePost(id, updatePostDto);
   }
 
+  @ApiOperation({
+    summary: '포스트 삭제',
+  })
+  @HttpCode(204)
   @Delete(':id')
-  deletePost(@Param('id') id: string) {
-    return this.postsService.deletePost(+id);
+  async deletePost(@Param('id', ParseIntPipe) id: number) {
+    return this.postsService.deletePost(id);
   }
 }

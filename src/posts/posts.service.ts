@@ -1,9 +1,16 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { errorMsg } from 'src/common/messages/erro.messages';
 import { complement } from 'src/common/utils/setMethod';
 import { Images, Posts, Tags, Hashtags } from 'src/entities';
 import { DataSource, Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create.post.dto';
+import { ReadPostDto } from './dto/read.post.dto';
 import { UpdatePostDto } from './dto/update.post.dto';
 
 @Injectable()
@@ -43,6 +50,9 @@ export class PostsService {
       // 3. 해시태그 등록
       // // 1. 태그들 등록(unique)
       // TODO: orIngore로 변경
+      if (createPostDto.hashtags.length === 0) {
+        return savedPost;
+      }
       const hashtagsToFind: { name: string }[] = createPostDto.hashtags.map(
         (item: string) => ({
           name: item,
@@ -85,11 +95,33 @@ export class PostsService {
     }
   }
 
-  readAllPosts() {
-    return `This action returns all posts`;
+  async readPosts(readPostDto: ReadPostDto) {
+    // 첫 로딩. endPostId 없을 경우
+    if (!readPostDto.endPostId) {
+      const foundPosts = this.postsRepository
+        .createQueryBuilder()
+        .orderBy('createdAt', 'DESC')
+        .limit(readPostDto.quantity)
+        .getMany();
+      return foundPosts;
+    }
+
+    // 이후 로딩. endPostId 있을 경우
+    const foundPosts = this.postsRepository
+      .createQueryBuilder()
+      .orderBy('createdAt', 'DESC')
+      .limit(readPostDto.quantity)
+      .where('id < :endPostId', { endPostId: readPostDto.endPostId })
+      .getMany();
+    return foundPosts;
   }
 
   async readPost(id: number) {
+    const doesExistPost = await this.postsRepository.findOneBy({ id });
+    if (!doesExistPost) {
+      throw new NotFoundException(errorMsg.NOT_FOUND_POST);
+    }
+
     // TODO : 댓글도 같이 조회
     const foundPost = await this.postsRepository
       .createQueryBuilder('posts')
@@ -105,6 +137,10 @@ export class PostsService {
 
   async updatePost(id: number, updatePostDto: UpdatePostDto) {
     //TODO : 조회된 post의 userId가 로그인 된 userId와 다른경우 403
+    const doesExistPost = await this.postsRepository.findOneBy({ id });
+    if (!doesExistPost) {
+      throw new NotFoundException(errorMsg.NOT_FOUND_POST);
+    }
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -202,7 +238,13 @@ export class PostsService {
     }
   }
 
-  deletePost(id: number) {
-    return `This action removes a #${id} post`;
+  async deletePost(id: number) {
+    const result = await this.postsRepository
+      .createQueryBuilder()
+      .softDelete()
+      .where('id = :id', { id })
+      .execute();
+
+    return result;
   }
 }
