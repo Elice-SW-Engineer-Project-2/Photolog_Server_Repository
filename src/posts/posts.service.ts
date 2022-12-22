@@ -51,6 +51,7 @@ export class PostsService {
       // // 1. 태그들 등록(unique)
       // TODO: orIngore로 변경
       if (createPostDto.hashtags.length === 0) {
+        await queryRunner.commitTransaction();
         return savedPost;
       }
       const hashtagsToFind: { name: string }[] = createPostDto.hashtags.map(

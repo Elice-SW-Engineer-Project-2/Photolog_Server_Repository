@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Images, Posts } from 'src/entities';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Posts, Images])],
+  imports: [TypeOrmModule.forFeature([Posts])],
   controllers: [PostsController],
   providers: [PostsService],
   exports: [PostsService],

@@ -13,6 +13,8 @@ import { PostsController } from './posts/posts.controller';
 import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { CommentsModule } from './comments/comments.module';
+import { CommentsController } from './comments/comments.controller';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -39,8 +41,10 @@ const inputEntities = [...Object.values(entities)];
     PhotosModule,
     PostsModule,
     AuthModule,
+    CommentsModule,
   ],
   controllers: [
+    CommentsController,
     AppController,
     UsersController,
     PhotosController,
