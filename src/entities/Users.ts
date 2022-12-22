@@ -32,10 +32,6 @@ export class Users {
   @Column('varchar', { name: 'password', length: 255 })
   password: string;
 
-  @ApiProperty()
-  @Column('varchar', { name: 'refreshToken', length: 255, nullable: true })
-  refreshToken: string;
-
   @CreateDateColumn()
   createdAt: Date;
 
