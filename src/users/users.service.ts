@@ -6,6 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Profile, Users } from 'src/entities';
 
 import * as bcrypt from 'bcrypt';
+import { UserUpdateDto } from './dto/user.update.dto';
 
 @Injectable()
 export class UsersService {
@@ -52,7 +53,7 @@ export class UsersService {
     };
     await this.saveUser(toSaveUser);
   }
-  async saveUser(toSaveUser: UserSignUpDto): Promise<void> {
+  async saveUser(toSaveUser: UserSignUpDto): Promise<any> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -66,6 +67,7 @@ export class UsersService {
         nickname: toSaveUser.nickname,
       });
       await queryRunner.commitTransaction();
+      return savedUser;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       Logger.error(error);
@@ -73,5 +75,23 @@ export class UsersService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async updateUser(id: number, user: UserUpdateDto): Promise<void> {
+    if (user.password) {
+      const hashedPassword = await bcrypt.hash(
+        user.password,
+        parseInt(process.env.PASSWORD_HASH_SALT),
+      );
+      await this.usersRepository.update(id, {
+        ...user,
+        password: hashedPassword,
+      });
+    } else {
+      await this.usersRepository.update(id, user);
+    }
+  }
+  async deleteUser(id: number): Promise<void> {
+    await this.usersRepository.delete({ id });
   }
 }
