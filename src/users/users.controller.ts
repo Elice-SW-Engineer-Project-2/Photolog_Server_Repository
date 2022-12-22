@@ -1,4 +1,14 @@
-import { Body, Controller, Post, Res, UseFilters } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Patch,
+  Post,
+  Res,
+  UseFilters,
+  Param,
+  Get,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -8,6 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/exceptions/httpException.filter';
 import { UserSignUpDto } from './dto/user.signup.dto';
+import { UserUpdateDto } from './dto/user.update.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('유저 API')
@@ -31,8 +42,23 @@ export class UsersController {
   @ApiUnauthorizedResponse({ status: 401 })
   @Post()
   async signUp(@Body() userSignUpDto: UserSignUpDto): Promise<void> {
-    await this.usersService.signUp(userSignUpDto);
+    return this.usersService.signUp(userSignUpDto);
 
     // res.status(201);
+  }
+
+  @Get('/:id')
+  async getUser(@Param() id: number) {
+    return this.usersService.findById(id);
+  }
+
+  @Patch('/:id')
+  async updateUser(@Param() id: number, @Body() user: UserUpdateDto) {
+    return this.usersService.updateUser(id, user);
+  }
+
+  @Delete('/:id')
+  async deleteUser(@Param() id: number) {
+    return this.usersService.deleteUser(id);
   }
 }
