@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -13,11 +13,14 @@ import { PostsModule } from './posts/posts.module';
 import { PostsController } from './posts/posts.controller';
 import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
+import { RedisCacheModule } from './redis-cache/redis-cache.module';
+import { RedisCacheController } from './redis-cache/redis-cache.controller';
 
 const inputEntities = [...Object.values(entities)];
 
 @Module({
   imports: [
+    CacheModule.register(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:
@@ -39,6 +42,7 @@ const inputEntities = [...Object.values(entities)];
     PhotosModule,
     PostsModule,
     AuthModule,
+    RedisCacheModule,
   ],
   controllers: [
     AppController,
@@ -46,6 +50,7 @@ const inputEntities = [...Object.values(entities)];
     PhotosController,
     PostsController,
     AuthController,
+    RedisCacheController,
   ],
   providers: [AppService],
 })
