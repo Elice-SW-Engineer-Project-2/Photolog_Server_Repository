@@ -1,6 +1,5 @@
-import { Profile, Users } from 'src/entities';
 import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { ApiProperty, IntersectionType, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UserUpdateDto {
   @ApiProperty()

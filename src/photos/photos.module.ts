@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { PhotosService } from './photos.service';
 import { PhotosController } from './photos.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Images, ImageUrl } from 'src/entities';
+import { ImageUrl } from 'src/entities';
 import { PhotosDao } from './photos.dao';
 
 @Module({

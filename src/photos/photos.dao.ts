@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Images, ImageUrl, Profile, Users } from 'src/entities';
+import { ImageUrl } from 'src/entities';
 import { Repository } from 'typeorm';
 
 @Injectable()

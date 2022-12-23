@@ -1,11 +1,4 @@
-import {
-  Injectable,
-  NotAcceptableException,
-  NotFoundException,
-  UnauthorizedException,
-  Res,
-  Req,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException, Res, Req } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
@@ -37,7 +30,6 @@ export class AuthService {
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
     });
     return res.json({ accessToken, refreshToken });
   }
@@ -47,23 +39,25 @@ export class AuthService {
   }
   async renewAccessToken(@Req() req: Request, @Res() res: Response) {
     const token = req.cookies.refresh_token;
-    console.log('cookies:', req.cookies);
     console.log(token);
-    let payload;
     if (!token) {
       throw new UnauthorizedException(
         'refresh token 미존재. access token을 발급할 수 없습니다.',
       );
     }
     try {
-      const verifyResult = jwt.verify(token, process.env.ACCESS_SECRET);
-      payload = verifyResult;
+      const verifyResult = jwt.verify(token, process.env.REFRESH_SECRET);
+      console.log('verifyResfult : ', verifyResult);
+      const access_token = await this.newAccessToken(verifyResult['id']);
+      console.log('verifyResult : ', verifyResult['id']);
+      console.log('access_token : ', access_token);
+      return res.json({
+        access_token: access_token,
+      });
     } catch (err) {
       console.log('err: ', err);
-      throw new UnauthorizedException('토큰 검증에 실패하였습니다.');
+      throw new UnauthorizedException('토큰 발급에 실패하였습니다.');
     }
-    console.log(payload);
-    return payload;
   }
 
   newRefreshToken(userId: number) {
@@ -107,7 +101,6 @@ export class AuthService {
     console.log('token: ', token);
     try {
       const payload = jwt.verify(token, process.env.ACCESS_SECRET);
-      console.log('payload :', payload);
       return res.json(payload);
     } catch (err) {
       return res.json({
@@ -115,4 +108,5 @@ export class AuthService {
       });
     }
   }
+  // async renewPassword(@Req() req: Request, @Res() res: Response) {}
 }

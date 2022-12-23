@@ -1,26 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  UseGuards,
-  Body,
-  Res,
-  Req,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Res, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
-// import { LocalAuthGuard } from './local-auth.guard';
 import { Request, Response } from 'express';
-import { UsersService } from 'src/users/users.service';
 import { AuthDto } from './dtos/auth.dto';
-
-import * as jwt from 'jsonwebtoken';
 
 @Controller('/auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   async login(@Body() body: AuthDto, @Res() res: Response): Promise<any> {
@@ -36,7 +21,7 @@ export class AuthController {
     @Req() req: Request,
     @Res() res: Response,
   ): Promise<any> {
-    return this.authService.renewAccessToken(req, res);
+    return await this.authService.renewAccessToken(req, res);
   }
 
   @Get('verifyAccessToken')
@@ -47,4 +32,9 @@ export class AuthController {
     console.log('controller');
     return this.authService.verifyAccessToken(req, res);
   }
+
+  // @Post('renewPassword')
+  // async renewPassword(@Req() req: Request, @Res() res: Response): Promise<any> {
+  //   return this.authService.renewPassword(req, res);
+  // }
 }
