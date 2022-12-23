@@ -7,6 +7,8 @@ import {
   UseFilters,
   Param,
   Get,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -15,17 +17,24 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { HttpExceptionFilter } from 'src/common/exceptions/httpException.filter';
 import { UserSignUpDto } from './dto/user.signup.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
 import { UsersService } from './users.service';
-
+import { Request } from 'express';
+import { CurrentUser } from 'src/comments/decorators/user.decorator';
 @ApiTags('유저 API')
 @Controller('users')
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @Get('test')
+  guardTest(@CurrentUser() user) {
+    return user;
+  }
   // TODO : 직렬화 작동시키기(withoutPassword, deletedAt 객체 응답)
   @ApiOperation({
     summary: '유저 회원가입',
