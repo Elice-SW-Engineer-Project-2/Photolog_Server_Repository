@@ -22,7 +22,6 @@ import { HttpExceptionFilter } from 'src/common/exceptions/httpException.filter'
 import { UserSignUpDto } from './dto/user.signup.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
 import { UsersService } from './users.service';
-import { Request } from 'express';
 import { CurrentUser } from 'src/comments/decorators/user.decorator';
 @ApiTags('유저 API')
 @Controller('users')
@@ -51,8 +50,6 @@ export class UsersController {
   @Post()
   async signUp(@Body() userSignUpDto: UserSignUpDto): Promise<void> {
     return this.usersService.signUp(userSignUpDto);
-
-    // res.status(201);
   }
 
   @Get('/:id')
@@ -62,7 +59,7 @@ export class UsersController {
 
   @Patch('/:id')
   async updateUser(@Param() id: number, @Body() user: UserUpdateDto) {
-    return this.usersService.updateUser(id, user);
+    return this.usersService.updateUserPassword(id, user);
   }
 
   @Delete('/:id')
