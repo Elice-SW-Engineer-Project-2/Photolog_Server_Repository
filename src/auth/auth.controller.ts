@@ -5,16 +5,23 @@ import {
   Body,
   Res,
   Req,
+  UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { AuthDto } from './dtos/auth.dto';
 import * as jwt from 'jsonwebtoken';
-
+import * as nodeMailer from 'nodemailer';
+import { CurrentUser } from 'src/comments/decorators/user.decorator';
+import { JwtAuthGuard } from './jwt/jwt.guard';
+import { UsersService } from 'src/users/users.service';
 @Controller('/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('login')
   async login(@Body() body: AuthDto, @Res() res: Response): Promise<any> {
@@ -33,10 +40,7 @@ export class AuthController {
   }
 
   @Get('renewAccessToken')
-  async renewAccessToken(
-    @Req() req: Request,
-    @Res() res: Response,
-  ): Promise<any> {
+  async renewAccessToken(@Req() req: Request): Promise<any> {
     const token = req.cookies.refresh_token;
     if (!token) {
       throw new UnauthorizedException(
@@ -45,45 +49,57 @@ export class AuthController {
     }
     try {
       const verifyResult = jwt.verify(token, process.env.REFRESH_SECRET);
-      console.log('verifyResfult : ', verifyResult);
       const access_token = await this.authService.newAccessToken(
         verifyResult['id'],
       );
-      return res.json({
-        access_token: access_token,
-      });
+      return access_token;
     } catch (err) {
-      console.log('err: ', err);
       throw new UnauthorizedException('토큰 발급에 실패하였습니다.');
     }
   }
 
   @Get('verifyAccessToken')
-  async verifyAccessToken(
-    @Req() req: Request,
-    @Res() res: Response,
-  ): Promise<any> {
+  async verifyAccessToken(@Req() req: Request): Promise<any> {
     const authHeader = req.get('Authorization');
-    console.log('authHeader: ', authHeader);
     if (!(authHeader && authHeader.startsWith('Bearer'))) {
       throw new UnauthorizedException(
         'header에 bearer token이 존재하지 않습니다.',
       );
     }
     const token = authHeader.split(' ')[1];
-    console.log('token: ', token);
     try {
       const payload = jwt.verify(token, process.env.ACCESS_SECRET);
-      return res.json(payload);
+      return payload;
     } catch (err) {
-      return res.json({
-        success: 'failed',
-      });
+      throw new UnauthorizedException('올바르지 않은 토큰입니다.');
     }
   }
 
-  // @Post('renewPassword')
-  // async renewPassword(@Req() req: Request, @Res() res: Response): Promise<any> {
-  //   return this.authService.renewPassword(req, res);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Get('renewPassword')
+  async renewPassword(@CurrentUser() user, @Req() req: Request): Promise<any> {
+    const transportInfo = this.authService.getMailTransportInfo();
+    const transport = nodeMailer.createTransport(transportInfo);
+
+    const message = this.authService.getMailMessageInfo(user.email);
+    const newPassword = this.authService.generateRandomPassword();
+    message.text = `Password : ${newPassword}`;
+    Object.freeze(message);
+
+    try {
+      await this.usersService.updateUserPassword(user.id, {
+        password: newPassword,
+      });
+    } catch (err) {
+      throw new UnauthorizedException(
+        '유저 임시비밀번호 부여 후 수정도중 에러가 발생하였습니다.',
+      );
+    }
+
+    transport.sendMail(message, (err, info) => {
+      if (err) {
+        throw new UnauthorizedException('임시 패스워드 메일 전송 실패');
+      }
+    });
+  }
 }

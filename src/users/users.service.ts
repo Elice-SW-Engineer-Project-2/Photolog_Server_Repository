@@ -77,7 +77,7 @@ export class UsersService {
     }
   }
 
-  async updateUser(id: number, user: UserUpdateDto): Promise<void> {
+  async updateUserPassword(id: number, user: UserUpdateDto): Promise<void> {
     if (user.password) {
       const hashedPassword = await bcrypt.hash(
         user.password,
