@@ -31,7 +31,7 @@ export class AuthService {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
     });
-    return res.json({ accessToken, refreshToken });
+    return res.json({ accessToken: accessToken });
   }
   async logout(@Res() res: Response) {
     res.clearCookie('refresh_token');
