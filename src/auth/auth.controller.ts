@@ -16,6 +16,17 @@ import * as nodeMailer from 'nodemailer';
 import { CurrentUser } from 'src/comments/decorators/user.decorator';
 import { JwtAuthGuard } from './jwt/jwt.guard';
 import { UsersService } from 'src/users/users.service';
+import {
+  ApiAcceptedResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+
+@ApiTags('AUTH API')
 @Controller('/auth')
 export class AuthController {
   constructor(
@@ -23,6 +34,34 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
+  @ApiOperation({
+    summary: '유저 로그인',
+    description:
+      '유저의 email과 password를 입력받아 access token을 응답값으로 리턴해주고 성공시 refresh token이 쿠키에 저장됩니다.',
+  })
+  @ApiBody({ type: AuthDto })
+  @ApiOkResponse({
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+        data: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Niwicm9sZSI6ImdlbmVyYWwiLCJpYXQiOjE2NzE4Mjk5NjgsImV4cCI6MTY3MTg0MDc2OH0.mKNyUamd0Gc29qcZRrLQc83KbuvPs3zd5Uji4ctg2dw',
+      },
+    },
+  })
+  // @ApiUnauthorizedResponse({ status: 401 })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-23T21:04:22.775Z',
+        statusCode: 401,
+        message: '패스워드가 불일치합니다.',
+        error: 'Unauthorized',
+      },
+    },
+  })
   @Post('login')
   async login(@Body() body: AuthDto, @Res() res: Response): Promise<any> {
     const tokens = await this.authService.getAccessAndRefreshToken(body);
@@ -30,15 +69,61 @@ export class AuthController {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
     });
-    res.json(accessToken);
+    res.json({
+      //res 쓰면 반드시 res.json 써야해서 interceptor 양식처럼 적어주는것으로..
+      success: true,
+      data: accessToken,
+    });
   }
 
+  @ApiOkResponse({
+    status: 200,
+    schema: {
+      example: {
+        success: 'true',
+        data: 'refresh token 제거완료',
+      },
+    },
+  })
+  @ApiOperation({
+    summary: '유저 로그아웃',
+    description: '클라이언트의 refresh token 쿠키를 삭제합니다.',
+  })
   @Get('logout')
   async logout(@Res() res: Response): Promise<any> {
     res.clearCookie('refresh_token');
-    res.json('refresh token 제거완료');
+    res.json({
+      success: 'true',
+      data: 'refresh token 제거완료',
+    });
   }
 
+  @ApiOperation({
+    summary: 'access token 재발급',
+    description:
+      '클라이언트의 refresh token 쿠키를 서버에서 확인하여 access token을 발급받습니다.',
+  })
+  @ApiCreatedResponse({
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+        data: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Niwicm9sZSI6ImdlbmVyYWwiLCJpYXQiOjE2NzE4MzA4MjcsImV4cCI6MTY3MTg0MTYyN30.MiLVg58LsndkLX3HlIlkha009IbvXxh2hi9DApiualU',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-23T21:25:41.594Z',
+        statusCode: 401,
+        message: 'refresh token 미존재. access token을 발급할 수 없습니다.',
+        error: 'Unauthorized',
+      },
+    },
+  })
   @Get('renewAccessToken')
   async renewAccessToken(@Req() req: Request): Promise<any> {
     const token = req.cookies.refresh_token;
@@ -58,6 +143,37 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({
+    summary: 'access token 검증예시',
+    description:
+      '테스트용으로 써보시면 됩니다. 프론트에서 전역으로 관리하는 access token을 authorization header에 넣어주면 서버에서 확인하여 access token을 검증해보는 예시입니다.',
+  })
+  @ApiCreatedResponse({
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+        data: {
+          id: 6,
+          role: 'general',
+          iat: 1671831111,
+          exp: 1671841911,
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    status: 401,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-23T21:29:12.501Z',
+        statusCode: 401,
+        message: '올바르지 않은 토큰입니다.',
+        error: 'Unauthorized',
+      },
+    },
+  })
   @Get('verifyAccessToken')
   async verifyAccessToken(@Req() req: Request): Promise<any> {
     const authHeader = req.get('Authorization');
@@ -75,8 +191,12 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({
+    summary: '임시패스워드 발급',
+    description: '임시패스워드를 발급하는 예시입니다.',
+  })
   @UseGuards(JwtAuthGuard)
-  @Get('renewPassword')
+  @Get('renewPassword/')
   async renewPassword(@CurrentUser() user, @Req() req: Request): Promise<any> {
     const transportInfo = this.authService.getMailTransportInfo();
     const transport = nodeMailer.createTransport(transportInfo);
