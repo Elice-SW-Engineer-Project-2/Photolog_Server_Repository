@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { errorMsg } from 'src/common/messages/erro.messages';
+import { errorMsg } from 'src/common/messages/error.messages';
 import { Comments, Posts } from 'src/entities';
 import { Repository } from 'typeorm';
 import { CreateCommentDto } from './dto/create-comment.dto';

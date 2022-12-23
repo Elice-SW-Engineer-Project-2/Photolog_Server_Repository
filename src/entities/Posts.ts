@@ -32,6 +32,9 @@ export class Posts {
   @Column('text', { name: 'content' })
   content: string | null;
 
+  @Column('int', { name: 'likesCount', default: 0 })
+  likesCount: number;
+
   @Exclude()
   @CreateDateColumn()
   createdAt: Date;
