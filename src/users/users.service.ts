@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { errorMsg } from 'src/common/messages/erro.messages';
+import { errorMsg } from 'src/common/messages/error.messages';
 import { UserSignUpDto } from './dto/user.signup.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';

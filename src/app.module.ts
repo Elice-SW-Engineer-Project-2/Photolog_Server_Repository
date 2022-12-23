@@ -15,6 +15,7 @@ import { AuthController } from './auth/auth.controller';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { CommentsModule } from './comments/comments.module';
 import { CommentsController } from './comments/comments.controller';
+import { LikesModule } from './likes/likes.module';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -42,6 +43,7 @@ const inputEntities = [...Object.values(entities)];
     PostsModule,
     AuthModule,
     CommentsModule,
+    LikesModule,
   ],
   controllers: [
     CommentsController,

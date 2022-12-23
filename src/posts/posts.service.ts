@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { errorMsg } from 'src/common/messages/erro.messages';
+import { errorMsg } from 'src/common/messages/error.messages';
 import { complement } from 'src/common/utils/setMethod';
 import { Images, Posts, Tags, Hashtags } from 'src/entities';
 import { DataSource, Repository } from 'typeorm';
