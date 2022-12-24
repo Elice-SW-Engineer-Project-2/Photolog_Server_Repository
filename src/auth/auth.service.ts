@@ -1,11 +1,16 @@
-import { Injectable, UnauthorizedException, Res, Req } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { AuthDto } from './dtos/auth.dto';
 import { JwtService } from '@nestjs/jwt/dist';
-
+import { AuthResetPasswordDto } from './dtos/auth.reset-password.dto';
+import * as nodeMailer from 'nodemailer';
 interface Tokens {
   accessToken: string;
   refreshToken: string;
@@ -17,12 +22,42 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  async resetPassword(email: string): Promise<any> {
+    const transportInfo = this.getMailTransportInfo();
+    const transport = nodeMailer.createTransport(transportInfo);
+
+    const message = this.getMailMessageInfo(email);
+    const newPassword = this.generateRandomPassword();
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('해당 계정이 존재하지 않습니다.');
+    }
+    message.text = `Password : ${newPassword}`;
+    Object.freeze(message);
+
+    try {
+      await this.usersService.updateUserPassword(user.id, {
+        password: newPassword,
+      });
+    } catch (err) {
+      throw new UnauthorizedException(
+        '유저 임시비밀번호 부여 및 메일 발송 실패',
+      );
+    }
+    transport.sendMail(message, (err, info) => {
+      if (err) {
+        throw new UnauthorizedException('임시 패스워드 메일 전송 실패');
+      }
+    });
+    return '임시 패스워드가 메일로 전송되었습니다.';
+  }
+
   async getAccessAndRefreshToken(data: AuthDto): Promise<Tokens> {
     const { email, password } = data;
     console.log(data);
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      throw new UnauthorizedException('등록되지않은 user 입니다.');
+      throw new NotFoundException('등록되지않은 user 입니다.');
     }
 
     const compare = await bcrypt.compare(password, user.password);

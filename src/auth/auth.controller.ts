@@ -5,26 +5,23 @@ import {
   Body,
   Res,
   Req,
-  UseGuards,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { AuthDto } from './dtos/auth.dto';
 import * as jwt from 'jsonwebtoken';
-import * as nodeMailer from 'nodemailer';
-import { CurrentUser } from 'src/comments/decorators/user.decorator';
-import { JwtAuthGuard } from './jwt/jwt.guard';
 import { UsersService } from 'src/users/users.service';
 import {
-  ApiAcceptedResponse,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
+  ApiResponse,
 } from '@nestjs/swagger';
+import { AuthResetPasswordDto } from './dtos/auth.reset-password.dto';
 
 @ApiTags('AUTH API')
 @Controller('/auth')
@@ -59,6 +56,18 @@ export class AuthController {
         statusCode: 401,
         message: '패스워드가 불일치합니다.',
         error: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-24T06:28:22.827Z',
+        statusCode: 404,
+        message: '등록되지않은 user 입니다.',
+        error: 'Not Found',
       },
     },
   })
@@ -195,31 +204,29 @@ export class AuthController {
     summary: '임시패스워드 발급',
     description: '임시패스워드를 발급하는 예시입니다.',
   })
-  @UseGuards(JwtAuthGuard)
-  @Get('renewPassword/')
-  async renewPassword(@CurrentUser() user, @Req() req: Request): Promise<any> {
-    const transportInfo = this.authService.getMailTransportInfo();
-    const transport = nodeMailer.createTransport(transportInfo);
-
-    const message = this.authService.getMailMessageInfo(user.email);
-    const newPassword = this.authService.generateRandomPassword();
-    message.text = `Password : ${newPassword}`;
-    Object.freeze(message);
-
-    try {
-      await this.usersService.updateUserPassword(user.id, {
-        password: newPassword,
-      });
-    } catch (err) {
-      throw new UnauthorizedException(
-        '유저 임시비밀번호 부여 후 수정도중 에러가 발생하였습니다.',
-      );
-    }
-
-    transport.sendMail(message, (err, info) => {
-      if (err) {
-        throw new UnauthorizedException('임시 패스워드 메일 전송 실패');
-      }
-    });
+  @ApiCreatedResponse({
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+        data: '임시 패스워드가 메일로 전송되었습니다.',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-24T06:20:01.626Z',
+        statusCode: 401,
+        message: '해당 계정이 존재하지 않습니다.',
+        error: 'Not Found',
+      },
+    },
+  })
+  @Post('resetPassword')
+  async resetPassword(@Body() body: AuthResetPasswordDto): Promise<any> {
+    return await this.authService.resetPassword(body.email);
   }
 }
