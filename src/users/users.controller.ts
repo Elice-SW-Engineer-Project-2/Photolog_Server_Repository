@@ -15,7 +15,10 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiResponse,
   ApiUnauthorizedResponse,
+  ApiConflictResponse,
+  ApiBody,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { HttpExceptionFilter } from 'src/common/exceptions/httpException.filter';
@@ -23,18 +26,14 @@ import { UserSignUpDto } from './dto/user.signup.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
 import { UsersService } from './users.service';
 import { CurrentUser } from 'src/comments/decorators/user.decorator';
+import { Users } from 'src/entities';
+import { UserProfileNicknameUpdateDto } from './dto/user.update.profile-nickname.dto';
 @ApiTags('유저 API')
 @Controller('users')
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Get('test')
-  guardTest(@CurrentUser() user) {
-    return user;
-  }
-  // TODO : 직렬화 작동시키기(withoutPassword, deletedAt 객체 응답)
   @ApiOperation({
     summary: '유저 회원가입',
     description:
@@ -43,27 +42,138 @@ export class UsersController {
   @ApiOkResponse({
     type: UserSignUpDto,
     status: 200,
-    schema: { example: { sk: 1 } },
-  }) // TODO : api문서 제대로 작성
-  @ApiBearerAuth('Authorization') //인증이 필요한 api인지 확인, 자물쇠로 표시됨
-  @ApiUnauthorizedResponse({ status: 401 })
+    schema: {
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-24T17:15:54.542Z',
+        statusCode: 400,
+        message: '해당하는 이메일은 이미 존재합니다.',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    status: 400,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-24T17:11:29.233Z',
+        statusCode: 400,
+        message: '해당하는 닉네임은 이미 존재합니다.',
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiConflictResponse({
+    status: 400,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-24T17:16:26.898Z',
+        statusCode: 400,
+        message: ['password must be longer than or equal to 8 characters'],
+        error: 'Bad Request',
+      },
+    },
+  })
   @Post()
   async signUp(@Body() userSignUpDto: UserSignUpDto): Promise<void> {
     return this.usersService.signUp(userSignUpDto);
   }
 
-  @Get('/:id')
-  async getUser(@Param() id: number) {
-    return this.usersService.findById(id);
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async getUser(@CurrentUser() user) {
+    return this.usersService.findById(user.id);
   }
 
-  @Patch('/:id')
-  async updateUser(@Param() id: number, @Body() user: UserUpdateDto) {
-    return this.usersService.updateUserPassword(id, user);
+  @ApiOperation({
+    summary: '유저 패스워드 수정',
+    description:
+      'authorization header에 access token을 함께 담아 요청시 패스워드 수정이 완료됩니다.',
+  })
+  @ApiOkResponse({
+    type: UserSignUpDto,
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBody({ type: UserUpdateDto })
+  @ApiBearerAuth('Autorization')
+  @UseGuards(JwtAuthGuard)
+  @Patch('password')
+  async updateUserPassword(
+    @CurrentUser() user: Users,
+    @Body() password: UserUpdateDto,
+  ) {
+    return this.usersService.updateUserPassword(user.id, password);
   }
 
-  @Delete('/:id')
-  async deleteUser(@Param() id: number) {
-    return this.usersService.deleteUser(id);
+  @ApiOperation({
+    summary: '닉네임 수정',
+    description:
+      'authorization header에 access token을 함께 담아 요청시 닉네임 수정이 완료됩니다.',
+  })
+  @ApiOkResponse({
+    type: UserProfileNicknameUpdateDto,
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBody({ type: UserProfileNicknameUpdateDto })
+  @ApiBearerAuth('Autorization')
+  @UseGuards(JwtAuthGuard)
+  @Patch('nickname')
+  async updateNickname(
+    @CurrentUser() user: Users,
+    @Body() body: UserProfileNicknameUpdateDto,
+  ) {
+    return this.usersService.updateNickname(user, body.nickname);
+  }
+
+  @ApiOperation({
+    summary: '유저 탈퇴',
+    description:
+      'authorization header에 access token을 함께 담아 요청시 유저 탈퇴가 완료됩니다.',
+  })
+  @ApiOkResponse({
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+      },
+    },
+  })
+  @ApiBearerAuth('Authorization')
+  @ApiUnauthorizedResponse({
+    status: 404,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-24T17:23:45.499Z',
+        statusCode: 401,
+        message: 'Access failed',
+        error: 'Unauthorized',
+      },
+    },
+  })
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  async deleteUser(@CurrentUser() user) {
+    await this.usersService.deleteUser(user.id);
   }
 }
