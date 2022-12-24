@@ -19,13 +19,13 @@ export class UsersService {
   ) {}
 
   async findById(id: number): Promise<Users> {
-    return this.usersRepository.findOne({ where: { id } });
+    return await this.usersRepository.findOne({ where: { id } });
   }
   async findByEmail(email: string): Promise<Users> {
-    return this.usersRepository.findOne({ where: { email } });
+    return await this.usersRepository.findOne({ where: { email } });
   }
   async findByNickname(nickname: string): Promise<Profile> {
-    return this.profileRepository.findOne({ where: { nickname } });
+    return await this.profileRepository.findOne({ where: { nickname } });
   }
 
   async signUp(userSignupDto: UserSignUpDto): Promise<void> {
