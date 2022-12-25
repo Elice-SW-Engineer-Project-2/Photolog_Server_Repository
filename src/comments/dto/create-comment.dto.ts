@@ -9,8 +9,4 @@ export class CreateCommentDto {
     required: false,
   })
   content: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
 }

@@ -212,6 +212,7 @@ export class PostsService {
         'postUserProfileImage',
         'images',
         'imageUrl.url',
+        'comments.id',
         'comments.content',
         'comments.createdAt',
         'comments.updatedAt',

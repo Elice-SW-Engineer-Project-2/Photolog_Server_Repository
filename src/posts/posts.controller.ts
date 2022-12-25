@@ -20,8 +20,8 @@ import { HttpExceptionFilter } from 'src/common/exceptions/httpException.filter'
 import { ReadPostDto } from './dto/read.post.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
 import { PostAuthorizationGuard } from 'src/posts/authorization/post-authorization.guard';
-import { CurrentUser } from 'src/comments/decorators/user.decorator';
 import { Users } from 'src/entities';
+import { CurrentUser } from 'src/common/decorators/user.decorator';
 
 @ApiTags('포스트 API')
 @UseFilters(HttpExceptionFilter)

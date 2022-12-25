@@ -25,9 +25,10 @@ import { HttpExceptionFilter } from 'src/common/exceptions/httpException.filter'
 import { UserSignUpDto } from './dto/user.signup.dto';
 import { UserUpdateDto } from './dto/user.update.dto';
 import { UsersService } from './users.service';
-import { CurrentUser } from 'src/comments/decorators/user.decorator';
+
 import { Users } from 'src/entities';
 import { UserProfileNicknameUpdateDto } from './dto/user.update.profile-nickname.dto';
+import { CurrentUser } from 'src/common/decorators/user.decorator';
 @ApiTags('유저 API')
 @Controller('users')
 @UseFilters(HttpExceptionFilter)
