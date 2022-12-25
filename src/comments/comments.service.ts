@@ -17,6 +17,7 @@ export class CommentsService {
 
   async createComment(
     postId: number,
+    userId: number,
     createCommentDto: CreateCommentDto,
   ): Promise<void> {
     const postExists: boolean = await this.doesExistPost(postId);
@@ -25,6 +26,7 @@ export class CommentsService {
     }
     await this.commentsRepositoty.save({
       ...createCommentDto,
+      userId,
       postId,
     });
     return;
@@ -48,5 +50,9 @@ export class CommentsService {
       id,
     });
     return foundPost ? true : false;
+  }
+
+  async findCommentById(id: number) {
+    return this.commentsRepositoty.findOne({ where: { id } });
   }
 }
