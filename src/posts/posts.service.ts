@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { errorMsg } from 'src/common/messages/error.messages';
 import { complement } from 'src/common/utils/setMethod';
-import { Images, Posts, Tags, Hashtags } from 'src/entities';
+import { Images, Posts, Tags, Hashtags, Users, Likes } from 'src/entities';
 import { DataSource, Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create.post.dto';
 import { ReadPostDto } from './dto/read.post.dto';
@@ -18,6 +18,8 @@ export class PostsService {
   constructor(
     @InjectRepository(Posts)
     private readonly postsRepository: Repository<Posts>,
+    @InjectRepository(Likes)
+    private readonly likesRepository: Repository<Likes>,
     private dataSource: DataSource,
   ) {}
 
@@ -96,48 +98,147 @@ export class PostsService {
     }
   }
 
-  async readPosts(readPostDto: ReadPostDto) {
+  async readPosts(readPostDto: ReadPostDto, user: Users) {
+    const userId = user?.id;
     // 첫 로딩. endPostId 없을 경우
     if (!readPostDto.endPostId) {
-      const foundPosts = this.postsRepository
-        .createQueryBuilder()
-        .orderBy('createdAt', 'DESC')
+      const foundPosts = await this.postsRepository
+        .createQueryBuilder('posts')
+        .select([
+          'posts.id',
+          'posts.title',
+          'posts.content',
+          'posts.likesCount',
+          'postUser.id',
+          'postUserProfile.nickname',
+          'postUserProfileImage',
+          'images.id',
+          'imageUrl.url',
+          'likes.userId',
+        ])
+        .leftJoin('posts.user', 'postUser')
+        .leftJoin('postUser.profiles', 'postUserProfile')
+        .leftJoin('postUserProfile.image', 'postUserProfileImage')
+        .leftJoin('posts.images', 'images')
+        .leftJoin('images.imageUrl', 'imageUrl')
+        .leftJoin('posts.likes', 'likes')
+        .orderBy('posts.createdAt', 'DESC')
         .limit(readPostDto.quantity)
         .getMany();
-      return foundPosts;
+      console.log(foundPosts);
+
+      const result = foundPosts.map((post) => {
+        let isLiked = false;
+        post.likes.some((like) => {
+          if (like.userId === userId) {
+            isLiked = true;
+            return true;
+          }
+        });
+        const { likes, ...resultWithoutLikes } = post;
+
+        return { isLiked, ...resultWithoutLikes };
+      });
+      return result;
     }
 
     // 이후 로딩. endPostId 있을 경우
-    const foundPosts = this.postsRepository
-      .createQueryBuilder()
-      .orderBy('createdAt', 'DESC')
+    const foundPosts = await this.postsRepository
+      .createQueryBuilder('posts')
+      .select([
+        'posts.id',
+        'posts.title',
+        'posts.content',
+        'posts.likesCount',
+        'postUser.id',
+        'postUserProfile.nickname',
+        'postUserProfileImage',
+        'images.id',
+        'imageUrl.url',
+        'likes.userId',
+      ])
+      .leftJoin('posts.user', 'postUser')
+      .leftJoin('postUser.profiles', 'postUserProfile')
+      .leftJoin('postUserProfile.image', 'postUserProfileImage')
+      .leftJoin('posts.images', 'images')
+      .leftJoin('images.imageUrl', 'imageUrl')
+      .leftJoin('posts.likes', 'likes')
+      .orderBy('posts.createdAt', 'DESC')
       .limit(readPostDto.quantity)
       .where('id < :endPostId', { endPostId: readPostDto.endPostId })
       .getMany();
-    return foundPosts;
+
+    const result = foundPosts.map((post) => {
+      let isLiked = false;
+      post.likes.some((like) => {
+        if (like.userId === userId) {
+          isLiked = true;
+          return true;
+        }
+      });
+      const { likes, ...resultWithoutLikes } = post;
+
+      return { isLiked, ...resultWithoutLikes };
+    });
+    return result;
   }
 
-  async readPost(id: number) {
-    const doesExistPost = await this.postsRepository.findOneBy({ id });
+  async readPost(id: number, user: Users) {
+    const doesExistPost: Posts = await this.postsRepository.findOneBy({ id });
     if (!doesExistPost) {
       throw new NotFoundException(errorMsg.NOT_FOUND_POST);
     }
 
-    // TODO : 댓글도 같이 조회
+    let isLiked: boolean = false;
+    // 로그인 되어있는 상태에서 api요청시 isLiked 조회
+    if (user) {
+      const foundLike = await this.likesRepository.findOneBy({
+        userId: user.id,
+        postId: id,
+      });
+      isLiked = foundLike ? true : false;
+    }
+
     const foundPost = await this.postsRepository
       .createQueryBuilder('posts')
-      .leftJoinAndSelect('posts.images', 'images')
-      .leftJoinAndSelect('images.imageUrl', 'imageUrl')
-      .leftJoinAndSelect('posts.hashtags', 'hashtags')
-      .leftJoinAndSelect('hashtags.tag', 'tags')
+      .select([
+        'posts.title',
+        'posts.content',
+        'posts.likesCount',
+        'posts.createdAt',
+        'posts.updatedAt',
+        'postUser.id',
+        'postUserProfile.nickname',
+        'postUserProfileImage',
+        'images',
+        'imageUrl.url',
+        'comments.content',
+        'comments.createdAt',
+        'comments.updatedAt',
+        'commentUser.id',
+        'commentUserProfiles.nickname',
+        'commentUserProfileImage',
+        'hashtags.id',
+        'tags.name',
+      ])
+      .leftJoin('posts.user', 'postUser')
+      .leftJoin('postUser.profiles', 'postUserProfile')
+      .leftJoin('postUserProfile.image', 'postUserProfileImage')
+      .leftJoin('posts.images', 'images')
+      .leftJoin('images.imageUrl', 'imageUrl')
+      .leftJoin('posts.comments', 'comments')
+      .leftJoin('comments.user', 'commentUser')
+      .leftJoin('commentUser.profiles', 'commentUserProfiles')
+      .leftJoin('commentUserProfiles.image', 'commentUserProfileImage')
+      .leftJoin('posts.hashtags', 'hashtags')
+      .leftJoin('hashtags.tag', 'tags')
       .where('posts.id = :id', { id })
       .getOne();
 
-    return foundPost;
+    return { isLiked, ...foundPost };
   }
 
   async updatePost(id: number, updatePostDto: UpdatePostDto) {
-    //TODO : 조회된 post의 userId가 로그인 된 userId와 다른경우 403
     const doesExistPost = await this.postsRepository.findOneBy({ id });
     if (!doesExistPost) {
       throw new NotFoundException(errorMsg.NOT_FOUND_POST);
@@ -247,5 +348,9 @@ export class PostsService {
       .execute();
 
     return result;
+  }
+
+  async findPostById(id: number): Promise<Posts> {
+    return this.postsRepository.findOne({ where: { id } });
   }
 }

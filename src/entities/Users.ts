@@ -12,7 +12,7 @@ import { Comments } from './Comments';
 import { Likes } from './Likes';
 import { Posts } from './Posts';
 import { Profile } from './Profile';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 

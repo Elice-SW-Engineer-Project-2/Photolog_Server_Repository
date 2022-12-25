@@ -5,4 +5,5 @@ export const errorMsg = {
   WRONG_LIKE_REQUEST: '잘못된 좋아요 요청입니다. hint: unlike 요청을 보내세요',
   WRONG_UNLIKE_REQUEST:
     '잘못된 좋아요 해제 요청입니다. hint: like 요청을 보내세요',
+  DB_ERROR: 'DB error',
 };
