@@ -22,7 +22,6 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 @ApiTags('댓글 API')
 @Controller()
 export class CommentsController {
-  //TODO : useId dto에서 빼고 req에서 가져오기
   constructor(private readonly commentsService: CommentsService) {}
 
   @UseGuards(JwtAuthGuard)

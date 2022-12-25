@@ -30,7 +30,7 @@ export class LikesService {
     const doesLikeExist: boolean = foundLike.length !== 0 ? true : false;
 
     // 프론트에서 좋아요가 되어 있는 글에 다시 좋아요 요청을 보내는 경우 (FE should request unlike api)
-    if (foundLike[0].deletedAt === null) {
+    if (foundLike[0]?.deletedAt === null) {
       throw new BadRequestException(errorMsg.WRONG_LIKE_REQUEST);
     }
 
@@ -83,7 +83,7 @@ export class LikesService {
     );
 
     // 프론트에서 좋아요가 해제되어 있는 글에 다시 좋아요 해제 요청을 보내는 경우 (FE should request like api)
-    if (foundLike[0].deletedAt !== null) {
+    if (foundLike[0]?.deletedAt !== null) {
       throw new BadRequestException(errorMsg.WRONG_UNLIKE_REQUEST);
     }
 
