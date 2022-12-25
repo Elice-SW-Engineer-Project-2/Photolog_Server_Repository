@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
@@ -16,6 +21,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { CommentsModule } from './comments/comments.module';
 import { CommentsController } from './comments/comments.controller';
 import { LikesModule } from './likes/likes.module';
+import { UserInjectMiddleware } from './middlewares/userInject.middleware';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -58,5 +64,11 @@ const inputEntities = [...Object.values(entities)];
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer
+      .apply(UserInjectMiddleware)
+      .forRoutes(
+        { path: 'posts', method: RequestMethod.GET },
+        { path: 'posts/*', method: RequestMethod.GET },
+      );
   }
 }

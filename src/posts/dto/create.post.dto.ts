@@ -8,10 +8,7 @@ import {
 } from 'class-validator';
 
 export class CreatePostDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  userId?: number;
 
   @ApiProperty()
   @IsNotEmpty()
