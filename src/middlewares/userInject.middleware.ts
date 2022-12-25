@@ -14,9 +14,19 @@ export class UserInjectMiddleware implements NestMiddleware {
   public async use(req: Request, res: Response, next: () => void) {
     const token = req.headers.authorization?.split(' ')[1];
     if (token) {
-      const decodedToken = jwt.decode(token) as JwtPayload;
-      req.user = await this.usersService.findById(decodedToken.id);
-      return next();
+      try {
+        const payload = jwt.verify(
+          token,
+          process.env.ACCESS_SECRET,
+        ) as JwtPayload;
+
+        req.user = await this.usersService.findById(payload.id);
+        return next();
+      } catch {
+        // 만료된 토큰이 요청되었을 때
+        req.user = null;
+        return next();
+      }
     }
     req.user = null;
     return next();
