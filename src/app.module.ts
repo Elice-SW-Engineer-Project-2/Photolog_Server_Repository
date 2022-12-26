@@ -22,6 +22,7 @@ import { CommentsModule } from './comments/comments.module';
 import { CommentsController } from './comments/comments.controller';
 import { LikesModule } from './likes/likes.module';
 import { UserInjectMiddleware } from './middlewares/userInject.middleware';
+import { HashtagsModule } from './hashtags/hashtags.module';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -50,6 +51,7 @@ const inputEntities = [...Object.values(entities)];
     AuthModule,
     CommentsModule,
     LikesModule,
+    HashtagsModule,
   ],
   controllers: [
     CommentsController,
@@ -69,6 +71,7 @@ export class AppModule implements NestModule {
       .forRoutes(
         { path: 'posts', method: RequestMethod.GET },
         { path: 'posts/*', method: RequestMethod.GET },
+        { path: 'hashtags/*', method: RequestMethod.GET },
       );
   }
 }
