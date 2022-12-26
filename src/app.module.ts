@@ -23,6 +23,7 @@ import { CommentsController } from './comments/comments.controller';
 import { LikesModule } from './likes/likes.module';
 import { UserInjectMiddleware } from './middlewares/userInject.middleware';
 import { HashtagsModule } from './hashtags/hashtags.module';
+import { CamerasModule } from './cameras/cameras.module';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -52,6 +53,7 @@ const inputEntities = [...Object.values(entities)];
     CommentsModule,
     LikesModule,
     HashtagsModule,
+    CamerasModule,
   ],
   controllers: [
     CommentsController,

@@ -30,11 +30,11 @@ export class Images {
   @Column('int', { name: 'imageUrlId' })
   imageUrlId: number;
 
-  @Column('int', { name: 'lensId' })
-  lensId: number;
+  @Column('int', { name: 'lensId', nullable: true })
+  lensId?: number;
 
-  @Column('int', { name: 'cameraId' })
-  cameraId: number;
+  @Column('int', { name: 'cameraId', nullable: true })
+  cameraId?: number;
 
   @Column('double', { name: 'latitude' })
   latitude: number | null;
