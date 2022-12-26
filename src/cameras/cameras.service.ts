@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cameras, Companies, Lenses } from 'src/entities';
 import { Repository } from 'typeorm';
+import * as lens from '../../lens';
 
 @Injectable()
 export class CamerasService {
@@ -24,5 +25,13 @@ export class CamerasService {
 
   async readCompanies(): Promise<Companies[]> {
     return await this.companiesRepository.find();
+  }
+
+  async data() {
+    const data = lens.fujiLens;
+    const insertData = data.map((item) => ({ model: item, companyId: 6 }));
+    console.log(insertData);
+
+    return await this.lensesRepository.insert(insertData);
   }
 }

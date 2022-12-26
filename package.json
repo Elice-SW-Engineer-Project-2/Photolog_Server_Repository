@@ -12,6 +12,7 @@
     "start": "nest start",
     "start:dev": "cross-env NODE_ENV=dev nest build --webpack --webpackPath webpack-hmr.config.ts --watch",
     "start:staging": "cross-env NODE_ENV=staging nest build --webpack --webpackPath webpack-hmr.config.ts --watch",
+    "start:staging:backup": "cross-env NODE_ENV=staging nest start --watch",
     "start:dev:backup": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",

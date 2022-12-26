@@ -35,4 +35,9 @@ export class CamerasController {
   async readCompanies(): Promise<Companies[]> {
     return await this.camerasService.readCompanies();
   }
+
+  @Get('data')
+  async data() {
+    return await this.camerasService.data();
+  }
 }
