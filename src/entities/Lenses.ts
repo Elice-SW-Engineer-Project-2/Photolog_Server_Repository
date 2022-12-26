@@ -22,14 +22,14 @@ export class Lenses {
   @Column('varchar', { name: 'model', length: 100 })
   model: string | null;
 
-  @Column('varchar', { name: 'focalLength', length: 100 })
-  focalLength: string | null;
+  // @Column('varchar', { name: 'focalLength', length: 100 })
+  // focalLength: string | null;
 
-  @Column('float', { name: 'aperture' })
-  aperture: number | null;
+  // @Column('float', { name: 'aperture' })
+  // aperture: number | null;
 
-  @Column('enum', { name: 'type', enum: ['prime', 'zoom'] })
-  type: 'prime' | 'zoom' | null;
+  // @Column('enum', { name: 'type', enum: ['prime', 'zoom'] })
+  // type: 'prime' | 'zoom' | null;
 
   @OneToMany(() => Images, (images) => images.lens)
   images: Images[];
