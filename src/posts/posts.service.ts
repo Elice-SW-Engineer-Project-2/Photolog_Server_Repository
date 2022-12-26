@@ -212,6 +212,8 @@ export class PostsService {
         'postUserProfileImage',
         'images',
         'imageUrl.url',
+        'lens.model',
+        'camera.model',
         'comments.id',
         'comments.content',
         'comments.createdAt',
@@ -226,6 +228,8 @@ export class PostsService {
       .leftJoin('postUser.profiles', 'postUserProfile')
       .leftJoin('postUserProfile.image', 'postUserProfileImage')
       .leftJoin('posts.images', 'images')
+      .leftJoin('images.lens', 'lens')
+      .leftJoin('images.camera', 'camera')
       .leftJoin('images.imageUrl', 'imageUrl')
       .leftJoin('posts.comments', 'comments')
       .leftJoin('comments.user', 'commentUser')
