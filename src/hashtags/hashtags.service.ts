@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { errorMsg } from 'src/common/messages/error.messages';
-import { Hashtags, Tags, Users } from 'src/entities';
+import { Hashtags, Likes, Posts, Tags, Users } from 'src/entities';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -14,14 +15,16 @@ export class HashtagsService {
   ) {}
 
   async readPosts(keyword: string, user: Users) {
-    const userId = user?.id;
-    console.log(userId);
-    const foundTag = await this.tagsRepository.findOneBy({ name: keyword });
+    const userId: number | undefined | null = user?.id;
+
+    const foundTag: Tags = await this.tagsRepository.findOneBy({
+      name: keyword,
+    });
     if (!foundTag) {
       throw new NotFoundException(errorMsg.NOT_FOUND_HASHTAG);
     }
 
-    const foundPosts = await this.hashtagsRepository
+    const foundPosts: Hashtags[] = await this.hashtagsRepository
       .createQueryBuilder('hashtags')
       .select([
         'hashtags.id',
@@ -33,6 +36,8 @@ export class HashtagsService {
         'postUserProfile.nickname',
         'postUserProfileImage',
         'images.id',
+        'images.latitude',
+        'images.longitude',
         'imageUrl.url',
         'likes.userId',
       ])
@@ -48,7 +53,7 @@ export class HashtagsService {
 
     const result = foundPosts.map(({ post }) => {
       let isLiked = false;
-      post.likes.some((like) => {
+      post.likes.some((like: Likes) => {
         if (like.userId === userId) {
           isLiked = true;
           return true;
