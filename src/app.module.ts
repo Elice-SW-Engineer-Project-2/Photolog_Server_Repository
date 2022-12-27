@@ -24,6 +24,8 @@ import { LikesModule } from './likes/likes.module';
 import { UserInjectMiddleware } from './middlewares/userInject.middleware';
 import { HashtagsModule } from './hashtags/hashtags.module';
 import { CamerasModule } from './cameras/cameras.module';
+import { ProfilesModule } from './profiles/profiles.module';
+import { ProfilesController } from './profiles/profiles.controller';
 
 const inputEntities = [...Object.values(entities)];
 
@@ -54,6 +56,7 @@ const inputEntities = [...Object.values(entities)];
     LikesModule,
     HashtagsModule,
     CamerasModule,
+    ProfilesModule,
   ],
   controllers: [
     CommentsController,
@@ -62,6 +65,7 @@ const inputEntities = [...Object.values(entities)];
     PhotosController,
     PostsController,
     AuthController,
+    ProfilesController,
   ],
   providers: [AppService],
 })
