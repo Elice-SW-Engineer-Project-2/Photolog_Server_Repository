@@ -100,6 +100,15 @@ export class PostsService {
 
   async readPosts(readPostDto: ReadPostDto, user: Users) {
     const userId = user?.id;
+
+    // 마지막 포스트
+    const lastPost: Posts = await this.postsRepository
+      .createQueryBuilder('post')
+      .orderBy('post.id', 'ASC')
+      .limit(1)
+      .getOne();
+    const lastPostId: number = lastPost.id;
+
     // 첫 로딩. endPostId 없을 경우
     if (!readPostDto.endPostId) {
       const foundPosts = await this.postsRepository
@@ -125,19 +134,23 @@ export class PostsService {
         .orderBy('posts.createdAt', 'DESC')
         .limit(readPostDto.quantity)
         .getMany();
-      console.log(foundPosts);
 
       const result = foundPosts.map((post) => {
         let isLiked = false;
+        const isLast = post.id === lastPostId ? true : false;
+        // 좋아요
         post.likes.some((like) => {
           if (like.userId === userId) {
             isLiked = true;
             return true;
           }
         });
+
+        // 마지막 데이터
+
         const { likes, ...resultWithoutLikes } = post;
 
-        return { isLiked, ...resultWithoutLikes };
+        return { isLast, isLiked, ...resultWithoutLikes };
       });
       return result;
     }
@@ -165,11 +178,13 @@ export class PostsService {
       .leftJoin('posts.likes', 'likes')
       .orderBy('posts.createdAt', 'DESC')
       .limit(readPostDto.quantity)
-      .where('id < :endPostId', { endPostId: readPostDto.endPostId })
+      .where('posts.id < :endPostId', { endPostId: readPostDto.endPostId })
       .getMany();
 
     const result = foundPosts.map((post) => {
+      const isLast = post.id === lastPostId ? true : false;
       let isLiked = false;
+
       post.likes.some((like) => {
         if (like.userId === userId) {
           isLiked = true;
@@ -178,7 +193,7 @@ export class PostsService {
       });
       const { likes, ...resultWithoutLikes } = post;
 
-      return { isLiked, ...resultWithoutLikes };
+      return { isLast, isLiked, ...resultWithoutLikes };
     });
     return result;
   }
