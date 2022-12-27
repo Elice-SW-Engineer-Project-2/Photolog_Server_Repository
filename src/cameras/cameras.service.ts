@@ -22,7 +22,47 @@ export class CamerasService {
     return await this.lensesRepository.findBy({ companyId });
   }
 
-  async readCompanies(): Promise<Companies[]> {
-    return await this.companiesRepository.find();
+  async readCameraCompanies(): Promise<Companies[]> {
+    const foundCompanyId: Cameras[] = await this.camerasRepository
+      .createQueryBuilder()
+      .select('companyId')
+      .distinct(true)
+      .execute();
+    const compaiesToFind: { id: number }[] = foundCompanyId.map(
+      (item: Cameras) => ({
+        id: item.companyId,
+      }),
+    );
+    const foundCompanies: Companies[] = await this.companiesRepository.findBy(
+      compaiesToFind,
+    );
+    const additionalOption = {
+      id: null,
+      name: '없음',
+    } as Companies;
+
+    return [...foundCompanies, additionalOption];
+  }
+
+  async readLensCompanies(): Promise<Companies[]> {
+    const foundCompanyId: Lenses[] = await this.lensesRepository
+      .createQueryBuilder()
+      .select('companyId')
+      .distinct(true)
+      .execute();
+    const compaiesToFind: { id: number }[] = foundCompanyId.map(
+      (item: Lenses) => ({
+        id: item.companyId,
+      }),
+    );
+    const foundCompanies: Companies[] = await this.companiesRepository.findBy(
+      compaiesToFind,
+    );
+    const additionalOption = {
+      id: null,
+      name: '없음',
+    } as Companies;
+
+    return [...foundCompanies, additionalOption];
   }
 }

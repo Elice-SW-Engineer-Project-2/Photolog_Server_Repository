@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
 } from 'class-validator';
 
@@ -26,14 +27,14 @@ export class UpdatePostDto {
   imageUrlId: number;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
-  lensId: number;
+  lensId: number | null;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
-  cameraId: number;
+  cameraId: number | null;
 
   @ApiProperty()
   @IsNotEmpty()

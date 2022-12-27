@@ -31,10 +31,10 @@ export class Images {
   imageUrlId: number;
 
   @Column('int', { name: 'lensId', nullable: true })
-  lensId?: number;
+  lensId: number;
 
   @Column('int', { name: 'cameraId', nullable: true })
-  cameraId?: number;
+  cameraId: number;
 
   @Column('double', { name: 'latitude' })
   latitude: number | null;
@@ -64,7 +64,7 @@ export class Images {
     onDelete: 'NO ACTION',
     onUpdate: 'NO ACTION',
   })
-  @JoinColumn([{ name: 'cameraId', referencedColumnName: 'companyId' }])
+  @JoinColumn([{ name: 'cameraId', referencedColumnName: 'id' }])
   camera: Cameras;
 
   @ManyToOne(() => ImageUrl, (imageUrl) => imageUrl.images, {

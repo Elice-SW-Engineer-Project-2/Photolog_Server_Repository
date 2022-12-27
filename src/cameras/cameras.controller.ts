@@ -25,14 +25,22 @@ export class CamerasController {
   async readLenses(
     @Param('companyId', ParseIntPipe) companyId: number,
   ): Promise<Lenses[]> {
-    return await this.camerasService.readCameras(companyId);
+    return await this.camerasService.readLenses(companyId);
   }
 
   @ApiOperation({
-    summary: '회사 가져오기',
+    summary: '카메라 회사 가져오기',
   })
-  @Get('companies')
-  async readCompanies(): Promise<Companies[]> {
-    return await this.camerasService.readCompanies();
+  @Get('cameras/companies')
+  async readCameraCompanies(): Promise<Companies[]> {
+    return await this.camerasService.readCameraCompanies();
+  }
+
+  @ApiOperation({
+    summary: '렌즈 회사 가져오기',
+  })
+  @Get('lenses/companies')
+  async readLensCompanies(): Promise<Companies[]> {
+    return await this.camerasService.readLensCompanies();
   }
 }
