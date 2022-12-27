@@ -33,7 +33,9 @@ export class ProfilesController {
   }
 
   @Get('/:userId')
-  async getProfile(@Param() userId: number): Promise<Profile> {
+  async getProfile(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<Profile> {
     return this.profilesService.getProfile(userId);
   }
 }
