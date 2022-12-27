@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 import * as dotenv from 'dotenv';
 dotenv.config({
-  path: process.env.NODE_ENV == 'staging' ? '.env.staging' : '.env.dev',
+  path: '.env.staging',
 });
 
 const s3: AWS.S3 = new AWS.S3({ useAccelerateEndpoint: true });

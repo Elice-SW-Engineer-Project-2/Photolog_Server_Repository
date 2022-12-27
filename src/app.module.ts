@@ -33,8 +33,7 @@ const inputEntities = [...Object.values(entities)];
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV == 'staging' ? '.env.staging' : '.env.dev',
+      envFilePath: '.env.staging',
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
