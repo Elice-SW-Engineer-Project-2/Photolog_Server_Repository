@@ -37,7 +37,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @ApiOperation({
-    summary: '지도 위치기반 게시물 정보조회',
+    summary: '지도 위치기반 게시물 정보조회',
     description:
       '위도 경도 데이터 범위를 기반으로 관련 게시물들의 정보를 받습니다.',
   })
@@ -98,7 +98,7 @@ export class PostsController {
       },
     },
   })
-  @Get('map')
+  @Post('map')
   async getMapPostInfoByLatLng(@Body() body) {
     return this.postsService.getMapPostInfoByLatLng(body.latlng);
   }
