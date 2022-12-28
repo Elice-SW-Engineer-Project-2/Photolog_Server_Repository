@@ -375,7 +375,6 @@ export class PostsService {
   }
 
   async getMapPostInfoByLatLng(latlng) {
-    const obj = [];
     const ne_latitude: number = latlng.ne.lat;
     const sw_latitude: number = latlng.sw.lat;
     const ne_longitude: number = latlng.ne.lng;
@@ -402,7 +401,6 @@ export class PostsService {
         const hashtag = data.hashtag.split(',');
         newObj.hashtag = hashtag;
       }
-      obj.push(newObj);
     });
     return manager;
   }
