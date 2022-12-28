@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { errorMsg } from 'src/common/messages/error.messages';
 import { Comments, Posts } from 'src/entities';
@@ -20,39 +25,64 @@ export class CommentsService {
     userId: number,
     createCommentDto: CreateCommentDto,
   ): Promise<void> {
-    const postExists: boolean = await this.doesExistPost(postId);
-    if (!postExists) {
-      throw new NotFoundException(errorMsg.NOT_FOUND_POST);
+    try {
+      const postExists: boolean = await this.doesExistPost(postId);
+      if (!postExists) {
+        throw new NotFoundException(errorMsg.NOT_FOUND_POST);
+      }
+      await this.commentsRepositoty.save({
+        ...createCommentDto,
+        userId,
+        postId,
+      });
+      return;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
     }
-    await this.commentsRepositoty.save({
-      ...createCommentDto,
-      userId,
-      postId,
-    });
-    return;
   }
 
   async updateComment(
     commentId: number,
     updateCommentDto: UpdateCommentDto,
   ): Promise<void> {
-    await this.commentsRepositoty.update({ id: commentId }, updateCommentDto);
-    return;
+    try {
+      await this.commentsRepositoty.update({ id: commentId }, updateCommentDto);
+      return;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async deleteComment(commentId: number): Promise<void> {
-    await this.commentsRepositoty.softDelete(commentId);
-    return;
+    try {
+      await this.commentsRepositoty.softDelete(commentId);
+      return;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   private async doesExistPost(id: number): Promise<boolean> {
-    const foundPost: Posts = await this.postsRepository.findOneBy({
-      id,
-    });
-    return foundPost ? true : false;
+    try {
+      const foundPost: Posts = await this.postsRepository.findOneBy({
+        id,
+      });
+      return foundPost ? true : false;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async findCommentById(id: number) {
-    return this.commentsRepositoty.findOne({ where: { id } });
+    try {
+      return this.commentsRepositoty.findOne({ where: { id } });
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 }

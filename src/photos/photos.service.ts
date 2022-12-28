@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { S3 } from 'aws-sdk';
 import { s3 } from 'src/common/aws/s3';
@@ -35,7 +35,12 @@ export class PhotosService {
   }
 
   async uploadPhotoUrl(photoUploadDto: PhotoUploadDto) {
-    const { url } = photoUploadDto;
-    return await this.imageUrlRepository.save({ url });
+    try {
+      const { url } = photoUploadDto;
+      return await this.imageUrlRepository.save({ url });
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 }

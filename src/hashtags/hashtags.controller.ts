@@ -14,7 +14,7 @@ export class HashtagsController {
     description: '해시태그를 이용해 게시물들을 검색합니다.',
   })
   @ApiBearerAuth('Authorization')
-  @Get(':keyword/posts')
+  @Get('posts')
   async readPosts(
     @Query('keyword') keyword: string,
     @CurrentUser() user: Users,
