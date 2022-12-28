@@ -392,7 +392,7 @@ export class PostsService {
     LEFT JOIN tags
     ON tags.id = hashtags.tagId
     where images.latitude <= ? and images.latitude >= ? and images.longitude >= ? and images.longitude<= ?
-    group by tags.name
+    group by posts.id
     `,
       [ne_latitude, sw_latitude, sw_longitude, ne_longitude],
     );
