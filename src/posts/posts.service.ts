@@ -99,18 +99,64 @@ export class PostsService {
   }
 
   async readPosts(readPostDto: ReadPostDto, user: Users) {
-    const userId = user?.id;
+    try {
+      const userId = user?.id;
 
-    // 마지막 포스트
-    const lastPost: Posts = await this.postsRepository
-      .createQueryBuilder('post')
-      .orderBy('post.id', 'ASC')
-      .limit(1)
-      .getOne();
-    const lastPostId: number = lastPost.id;
+      // 마지막 포스트
+      const lastPost: Posts = await this.postsRepository
+        .createQueryBuilder('post')
+        .orderBy('post.id', 'ASC')
+        .limit(1)
+        .getOne();
+      const lastPostId: number = lastPost.id;
 
-    // 첫 로딩. endPostId 없을 경우
-    if (!readPostDto.endPostId) {
+      // 첫 로딩. endPostId 없을 경우
+      if (!readPostDto.endPostId) {
+        const foundPosts = await this.postsRepository
+          .createQueryBuilder('posts')
+          .select([
+            'posts.id',
+            'posts.title',
+            'posts.content',
+            'posts.likesCount',
+            'postUser.id',
+            'postUserProfile.nickname',
+            'postUserProfileImage',
+            'images.id',
+            'imageUrl.url',
+            'likes.userId',
+          ])
+          .leftJoin('posts.user', 'postUser')
+          .leftJoin('postUser.profiles', 'postUserProfile')
+          .leftJoin('postUserProfile.image', 'postUserProfileImage')
+          .leftJoin('posts.images', 'images')
+          .leftJoin('images.imageUrl', 'imageUrl')
+          .leftJoin('posts.likes', 'likes')
+          .orderBy('posts.createdAt', 'DESC')
+          .limit(readPostDto.quantity)
+          .getMany();
+
+        const result = foundPosts.map((post) => {
+          let isLiked = false;
+          const isLast = post.id === lastPostId ? true : false;
+          // 좋아요
+          post.likes.some((like) => {
+            if (like.userId === userId) {
+              isLiked = true;
+              return true;
+            }
+          });
+
+          // 마지막 데이터
+
+          const { likes, ...resultWithoutLikes } = post;
+
+          return { isLast, isLiked, ...resultWithoutLikes };
+        });
+        return result;
+      }
+
+      // 이후 로딩. endPostId 있을 경우
       const foundPosts = await this.postsRepository
         .createQueryBuilder('posts')
         .select([
@@ -133,129 +179,95 @@ export class PostsService {
         .leftJoin('posts.likes', 'likes')
         .orderBy('posts.createdAt', 'DESC')
         .limit(readPostDto.quantity)
+        .where('posts.id < :endPostId', { endPostId: readPostDto.endPostId })
         .getMany();
 
       const result = foundPosts.map((post) => {
-        let isLiked = false;
         const isLast = post.id === lastPostId ? true : false;
-        // 좋아요
+        let isLiked = false;
+
         post.likes.some((like) => {
           if (like.userId === userId) {
             isLiked = true;
             return true;
           }
         });
-
-        // 마지막 데이터
-
         const { likes, ...resultWithoutLikes } = post;
 
         return { isLast, isLiked, ...resultWithoutLikes };
       });
       return result;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
     }
-
-    // 이후 로딩. endPostId 있을 경우
-    const foundPosts = await this.postsRepository
-      .createQueryBuilder('posts')
-      .select([
-        'posts.id',
-        'posts.title',
-        'posts.content',
-        'posts.likesCount',
-        'postUser.id',
-        'postUserProfile.nickname',
-        'postUserProfileImage',
-        'images.id',
-        'imageUrl.url',
-        'likes.userId',
-      ])
-      .leftJoin('posts.user', 'postUser')
-      .leftJoin('postUser.profiles', 'postUserProfile')
-      .leftJoin('postUserProfile.image', 'postUserProfileImage')
-      .leftJoin('posts.images', 'images')
-      .leftJoin('images.imageUrl', 'imageUrl')
-      .leftJoin('posts.likes', 'likes')
-      .orderBy('posts.createdAt', 'DESC')
-      .limit(readPostDto.quantity)
-      .where('posts.id < :endPostId', { endPostId: readPostDto.endPostId })
-      .getMany();
-
-    const result = foundPosts.map((post) => {
-      const isLast = post.id === lastPostId ? true : false;
-      let isLiked = false;
-
-      post.likes.some((like) => {
-        if (like.userId === userId) {
-          isLiked = true;
-          return true;
-        }
-      });
-      const { likes, ...resultWithoutLikes } = post;
-
-      return { isLast, isLiked, ...resultWithoutLikes };
-    });
-    return result;
   }
 
   async readPost(id: number, user: Users) {
-    const doesExistPost: Posts = await this.postsRepository.findOneBy({ id });
-    if (!doesExistPost) {
-      throw new NotFoundException(errorMsg.NOT_FOUND_POST);
-    }
-
-    let isLiked: boolean = false;
-    // 로그인 되어있는 상태에서 api요청시 isLiked 조회
-    if (user) {
-      const foundLike = await this.likesRepository.findOneBy({
-        userId: user.id,
-        postId: id,
+    try {
+      const doesExistPost: Posts = await this.postsRepository.findOneBy({
+        id,
       });
-      isLiked = foundLike ? true : false;
+      if (!doesExistPost) {
+        throw new NotFoundException(errorMsg.NOT_FOUND_POST);
+      }
+
+      let isLiked: boolean = false;
+      // 로그인 되어있는 상태에서 api요청시 isLiked 조회
+      if (user) {
+        const foundLike = await this.likesRepository.findOneBy({
+          userId: user.id,
+          postId: id,
+        });
+        isLiked = foundLike ? true : false;
+      }
+
+      const foundPost = await this.postsRepository
+        .createQueryBuilder('posts')
+        .select([
+          'posts.title',
+          'posts.content',
+          'posts.likesCount',
+          'posts.createdAt',
+          'posts.updatedAt',
+          'postUser.id',
+          'postUserProfile.nickname',
+          'postUserProfileImage',
+          'images',
+          'imageUrl.url',
+          'lens.model',
+          'camera.model',
+          'comments.id',
+          'comments.content',
+          'comments.createdAt',
+          'comments.updatedAt',
+          'commentUser.id',
+          'commentUserProfiles.nickname',
+          'commentUserProfileImage',
+          'hashtags.id',
+          'tags.name',
+        ])
+        .leftJoin('posts.user', 'postUser')
+        .leftJoin('postUser.profiles', 'postUserProfile')
+        .leftJoin('postUserProfile.image', 'postUserProfileImage')
+        .leftJoin('posts.images', 'images')
+        .leftJoin('images.lens', 'lens')
+        .leftJoin('images.camera', 'camera')
+        .leftJoin('images.imageUrl', 'imageUrl')
+        .leftJoin('posts.comments', 'comments')
+        .leftJoin('comments.user', 'commentUser')
+        .leftJoin('commentUser.profiles', 'commentUserProfiles')
+        .leftJoin('commentUserProfiles.image', 'commentUserProfileImage')
+        .leftJoin('posts.hashtags', 'hashtags')
+        .leftJoin('hashtags.tag', 'tags')
+        .where('posts.id = :id', { id })
+        .getOne();
+
+      return { isLiked, ...foundPost };
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
     }
-
-    const foundPost = await this.postsRepository
-      .createQueryBuilder('posts')
-      .select([
-        'posts.title',
-        'posts.content',
-        'posts.likesCount',
-        'posts.createdAt',
-        'posts.updatedAt',
-        'postUser.id',
-        'postUserProfile.nickname',
-        'postUserProfileImage',
-        'images',
-        'imageUrl.url',
-        'lens.model',
-        'camera.model',
-        'comments.id',
-        'comments.content',
-        'comments.createdAt',
-        'comments.updatedAt',
-        'commentUser.id',
-        'commentUserProfiles.nickname',
-        'commentUserProfileImage',
-        'hashtags.id',
-        'tags.name',
-      ])
-      .leftJoin('posts.user', 'postUser')
-      .leftJoin('postUser.profiles', 'postUserProfile')
-      .leftJoin('postUserProfile.image', 'postUserProfileImage')
-      .leftJoin('posts.images', 'images')
-      .leftJoin('images.lens', 'lens')
-      .leftJoin('images.camera', 'camera')
-      .leftJoin('images.imageUrl', 'imageUrl')
-      .leftJoin('posts.comments', 'comments')
-      .leftJoin('comments.user', 'commentUser')
-      .leftJoin('commentUser.profiles', 'commentUserProfiles')
-      .leftJoin('commentUserProfiles.image', 'commentUserProfileImage')
-      .leftJoin('posts.hashtags', 'hashtags')
-      .leftJoin('hashtags.tag', 'tags')
-      .where('posts.id = :id', { id })
-      .getOne();
-
-    return { isLiked, ...foundPost };
   }
 
   async updatePost(id: number, updatePostDto: UpdatePostDto) {
@@ -361,17 +373,27 @@ export class PostsService {
   }
 
   async deletePost(id: number) {
-    const result = await this.postsRepository
-      .createQueryBuilder()
-      .softDelete()
-      .where('id = :id', { id })
-      .execute();
+    try {
+      const result = await this.postsRepository
+        .createQueryBuilder()
+        .softDelete()
+        .where('id = :id', { id })
+        .execute();
 
-    return result;
+      return result;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async findPostById(id: number): Promise<Posts> {
-    return this.postsRepository.findOne({ where: { id } });
+    try {
+      return this.postsRepository.findOne({ where: { id } });
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async getMapPostInfoByLatLng(latlng) {
