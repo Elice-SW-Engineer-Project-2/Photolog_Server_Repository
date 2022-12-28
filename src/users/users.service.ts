@@ -154,6 +154,19 @@ export class UsersService {
   }
   @UseGuards()
   async getUserLikePosts(uid: number) {
-    return '';
+    const manager = await this.dataSource.query(
+      `select P.title,L.postId,IU.url from users AS U
+      LEFT JOIN likes AS L
+      ON L.userId = U.id
+      LEFT JOIN posts AS P
+      ON P.id = L.postId
+      LEFT JOIN images AS I
+      ON P.id = I.postId
+      LEFT JOIN imageURL AS IU
+      ON I.imageUrlId = IU.id
+      where U.id = ? AND P.deletedAt is null`,
+      [uid],
+    );
+    return manager;
   }
 }
