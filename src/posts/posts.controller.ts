@@ -15,7 +15,14 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create.post.dto';
 import { UpdatePostDto } from './dto/update.post.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiProperty,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/exceptions/httpException.filter';
 import { ReadPostDto } from './dto/read.post.dto';
 import { JwtAuthGuard } from 'src/auth/jwt/jwt.guard';
@@ -29,6 +36,72 @@ import { CurrentUser } from 'src/common/decorators/user.decorator';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @ApiOperation({
+    summary: '지도 위치기반 게시물 정보조회',
+    description:
+      '위도 경도 데이터 범위를 기반으로 관련 게시물들의 정보를 받습니다.',
+  })
+  @ApiProperty({
+    example: {
+      latlng: {
+        sw: {
+          lat: 37.48970512,
+          lng: 126.72134047,
+        },
+        ne: {
+          lat: 37.49551104,
+          lng: 126.73862053,
+        },
+      },
+    },
+  })
+  @ApiCreatedResponse({
+    status: 0,
+    schema: {
+      example: {
+        latlng: {
+          sw: {
+            lat: 37.48970512,
+            lng: 126.72134047,
+          },
+          ne: {
+            lat: 37.49551104,
+            lng: 126.73862053,
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+        data: [
+          {
+            postId: 20,
+            latitude: 37.494772460624354,
+            longitude: 126.72861270174135,
+            imageURL:
+              'https://photolog-bucket.s3.ap-northeast-2.amazonaws.com/original/fe2846a3-8c86-45d0-8a86-a9776b7f6cdb.IMG_5018_Edited.jpg',
+            hashtag: null,
+          },
+          {
+            postId: 7,
+            latitude: 37.4905399,
+            longitude: 126.7282486,
+            imageURL:
+              'https://photolog-bucket.s3.ap-northeast-2.amazonaws.com/original/fe2846a3-8c86-45d0-8a86-a9776b7f6cdb.IMG_5018_Edited.jpg',
+            hashtag: ['돈까스', '짜장면', '떡볶이'],
+          },
+        ],
+      },
+    },
+  })
+  @Get('map')
+  async getMapPostInfoByLatLng(@Body() body) {
+    return this.postsService.getMapPostInfoByLatLng(body.latlng);
+  }
   @ApiOperation({
     summary: '포스트 등록',
     description: '*hashtag 배열은 중복값을 가지면 안됩니다.',

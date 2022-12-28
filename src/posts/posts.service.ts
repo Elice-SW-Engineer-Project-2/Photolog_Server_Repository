@@ -373,4 +373,37 @@ export class PostsService {
   async findPostById(id: number): Promise<Posts> {
     return this.postsRepository.findOne({ where: { id } });
   }
+
+  async getMapPostInfoByLatLng(latlng) {
+    const obj = [];
+    const ne_latitude: number = latlng.ne.lat;
+    const sw_latitude: number = latlng.sw.lat;
+    const ne_longitude: number = latlng.ne.lng;
+    const sw_longitude: number = latlng.sw.lng;
+
+    const manager = await this.dataSource.query(
+      `select posts.id AS postId,images.latitude,images.longitude,imageURL.url As imageURL, group_concat(tags.name) AS hashtag from posts
+    LEFT JOIN images
+    ON images.postId=posts.id
+    LEFT JOIN imageURL
+    ON imageURL.id=images.imageURLId
+    LEFT JOIN hashtags
+    ON posts.id=hashtags.postId
+    LEFT JOIN tags
+    ON tags.id = hashtags.tagId
+    where images.latitude <= ? and images.latitude >= ? and images.longitude >= ? and images.longitude<= ?
+    group by tags.name
+    `,
+      [ne_latitude, sw_latitude, sw_longitude, ne_longitude],
+    );
+    manager.forEach((data) => {
+      const newObj = data;
+      if (data.hashtag) {
+        const hashtag = data.hashtag.split(',');
+        newObj.hashtag = hashtag;
+      }
+      obj.push(newObj);
+    });
+    return manager;
+  }
 }
