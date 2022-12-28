@@ -36,6 +36,55 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({
+    summary: '유저 마이페이지 내 사진 게시물 조회',
+    description:
+      '로그인 되어있는 유저의 사진 게시물과 관련한 정보를 조회해주는 API입니다.',
+  })
+  @ApiBearerAuth('Autorization')
+  @ApiOkResponse({
+    status: 200,
+    schema: {
+      example: {
+        success: true,
+        data: [
+          {
+            imageUrl:
+              'https://photolog-bucket.s3.ap-northeast-2.amazonaws.com/original/fe2846a3-8c86-45d0-8a86-a9776b7f6cdb.IMG_5018_Edited.jpg',
+            postTitle: '자동화제목',
+            postId: 11,
+          },
+          {
+            imageUrl:
+              'https://photolog-bucket.s3.ap-northeast-2.amazonaws.com/original/fe2846a3-8c86-45d0-8a86-a9776b7f6cdb.IMG_5018_Edited.jpg',
+            postTitle: '자동화제목',
+            postId: 12,
+          },
+        ],
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    status: 400,
+    schema: {
+      example: {
+        success: false,
+        timestamp: '2022-12-28T12:11:25.896Z',
+        statusCode: 401,
+        message: 'Unauthorized',
+      },
+    },
+  })
+  @UseGuards(JwtAuthGuard)
+  @Get('mypage/posts')
+  async getUserPosts(@CurrentUser() user) {
+    return this.usersService.getUserPosts(user.id);
+  }
+
+  @Get('myPage/likePosts')
+  async getUserLikePosts(@CurrentUser() user) {
+    return this.usersService.getUserLikePosts(user.id);
+  }
+  @ApiOperation({
     summary: '유저 회원가입',
     description:
       '유저의 email과 pasword, nickname을 받아서 회원가입을 처리 함 password : 8자리 이상',
