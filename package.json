@@ -15,7 +15,7 @@
     "start:dev:backup": "nest start --watch",
     "start:staging:backup": "cross-env NODE_ENV=staging nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "cross-env NODE_ENV=staging pm2 start dist/src/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "lint:fix": "eslint --fix src/**/*.ts",
     "test": "jest",
