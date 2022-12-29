@@ -150,16 +150,24 @@ export class UsersService {
   async getUserPosts(uid: number) {
     try {
       const manager = await this.dataSource.query(
-        `select IU.url as imageUrl,P.title as postTitle,P.id As postId from users AS U
-      LEFT JOIN posts AS P
-      ON P.userId = U.id
-      LEFT JOIN images as I
-      ON P.id = I.postId
-      LEFT JOIN imageURL	as IU
-      ON I.imageUrlId = IU.id
-      where U.id=? AND P.deletedAt is null;
+        `select IU.url as imageUrl,P.title as postTitle,P.id As postId,
+            (CASE
+            WHEN L.userId=? AND P.userId =?
+              THEN 'true'
+                    ELSE 'false'
+            END) AS isLikeByme
+              from users AS U
+              LEFT JOIN posts AS P
+              ON P.userId = U.id
+              LEFT JOIN images as I
+              ON P.id = I.postId
+              LEFT JOIN imageURL as IU
+              ON I.imageUrlId = IU.id
+              LEFT JOIN likes as L
+              ON L.postId = P.id
+              where U.id=? AND P.deletedAt is null;
     `,
-        [uid],
+        [uid, uid, uid],
       );
       return manager;
     } catch (error) {
