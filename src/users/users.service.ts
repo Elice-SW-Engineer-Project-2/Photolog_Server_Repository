@@ -152,7 +152,7 @@ export class UsersService {
       const manager = await this.dataSource.query(
         `select IU.url as imageUrl,P.title as postTitle,P.id As postId,
             (CASE
-            WHEN L.userId=? AND P.userId =?
+            WHEN L.userId=? AND P.userId =? AND L.deletedAt is null
               THEN 'true'
                     ELSE 'false'
             END) AS isLikeByme
@@ -165,7 +165,7 @@ export class UsersService {
               ON I.imageUrlId = IU.id
               LEFT JOIN likes as L
               ON L.postId = P.id
-              where U.id=? AND P.deletedAt is null;
+              where U.id=? AND P.deletedAt is null ;
     `,
         [uid, uid, uid],
       );
@@ -175,6 +175,7 @@ export class UsersService {
       throw new BadRequestException(error);
     }
   }
+
   @UseGuards()
   async getUserLikePosts(uid: number) {
     try {
@@ -188,7 +189,7 @@ export class UsersService {
       ON P.id = I.postId
       LEFT JOIN imageURL AS IU
       ON I.imageUrlId = IU.id
-      where U.id = ? AND P.deletedAt is null`,
+      where U.id = ? AND P.deletedAt is null AND L.deletedAt is null`,
         [uid],
       );
       return manager;
