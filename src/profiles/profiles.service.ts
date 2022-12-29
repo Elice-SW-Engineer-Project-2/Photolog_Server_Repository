@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Profile } from 'src/entities';
 import { Repository } from 'typeorm';
@@ -10,15 +15,20 @@ export class ProfilesService {
   ) {}
 
   async getProfile(userId: number): Promise<any> {
-    const foundUser = await this.profileRepository
-      .createQueryBuilder('profile')
-      .select(['user.email', 'profile.nickname', 'image.url'])
-      .leftJoin('profile.user', 'user')
-      .leftJoin('profile.image', 'image')
-      .where('profile.userId=:userId', { userId })
-      .execute();
+    try {
+      const foundUser = await this.profileRepository
+        .createQueryBuilder('profile')
+        .select(['user.email', 'user.id', 'profile.nickname', 'image.url'])
+        .leftJoin('profile.user', 'user')
+        .leftJoin('profile.image', 'image')
+        .where('profile.userId=:userId', { userId })
+        .execute();
 
-    return foundUser;
+      return foundUser;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
   async changeProfileImage(userId: number, imageUrlId: number): Promise<any> {
     try {
