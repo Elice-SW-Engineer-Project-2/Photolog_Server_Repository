@@ -38,7 +38,7 @@ export class UsersController {
   @ApiOperation({
     summary: '유저 마이페이지 내 사진 게시물 조회',
     description:
-      '로그인 되어있는 유저의 사진 게시물과 관련한 정보를 조회해주는 API입니다.',
+      '로그인 되어있는 유저의 사진 게시물과 관련한 정보를 조회해주는 API입니다. 자기 게시물에 셀프좋아요 한 여부도 응답값으로 줍니다.',
   })
   @ApiBearerAuth('Autorization')
   @ApiOkResponse({
@@ -52,12 +52,14 @@ export class UsersController {
               'https://photolog-bucket.s3.ap-northeast-2.amazonaws.com/original/fe2846a3-8c86-45d0-8a86-a9776b7f6cdb.IMG_5018_Edited.jpg',
             postTitle: '자동화제목',
             postId: 11,
+            isLikeByme: 'false',
           },
           {
             imageUrl:
               'https://photolog-bucket.s3.ap-northeast-2.amazonaws.com/original/fe2846a3-8c86-45d0-8a86-a9776b7f6cdb.IMG_5018_Edited.jpg',
             postTitle: '자동화제목',
             postId: 12,
+            isLikeByme: 'true',
           },
         ],
       },
