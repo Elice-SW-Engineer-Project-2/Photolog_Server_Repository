@@ -4,7 +4,7 @@ import { Cameras, Companies, Lenses } from 'src/entities';
 import { CamerasService } from './cameras.service';
 
 @ApiTags('카메라 관련 API')
-@Controller('api')
+@Controller()
 export class CamerasController {
   constructor(private readonly camerasService: CamerasService) {}
 

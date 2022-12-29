@@ -14,7 +14,7 @@ import { PresignedUrlDto } from './dto/presigned-url.dto';
 import { PhotosService } from './photos.service';
 
 @ApiTags('이미지 업로드')
-@Controller('api/photos')
+@Controller('photos')
 @UseFilters(HttpExceptionFilter)
 export class PhotosController {
   constructor(private readonly photosService: PhotosService) {}

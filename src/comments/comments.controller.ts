@@ -20,7 +20,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @ApiTags('댓글 API')
-@Controller('api')
+@Controller()
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 

@@ -12,7 +12,7 @@ import { Users } from 'src/entities';
 import { LikesService } from './likes.service';
 
 @ApiTags('좋아요 API')
-@Controller('api/posts')
+@Controller('posts')
 export class LikesController {
   constructor(private readonly likesService: LikesService) {}
   @ApiOperation({

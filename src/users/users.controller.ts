@@ -28,7 +28,7 @@ import { Users } from 'src/entities';
 import { UserProfileNicknameUpdateDto } from './dto/user.update.profile-nickname.dto';
 import { CurrentUser } from 'src/common/decorators/user.decorator';
 @ApiTags('유저 API')
-@Controller('api/users')
+@Controller('users')
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
