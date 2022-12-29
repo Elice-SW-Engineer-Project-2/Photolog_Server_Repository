@@ -46,17 +46,22 @@ export class UsersService {
       throw new BadRequestException(errorMsg.NICKNAME_EXISTS);
     }
 
-    const hashedPassword = await bcrypt.hash(
-      password,
-      parseInt(process.env.PASSWORD_HASH_SALT),
-    );
+    try {
+      const hashedPassword = await bcrypt.hash(
+        password,
+        parseInt(process.env.PASSWORD_HASH_SALT),
+      );
 
-    const toSaveUser = {
-      email,
-      password: hashedPassword,
-      nickname,
-    };
-    await this.saveUser(toSaveUser);
+      const toSaveUser = {
+        email,
+        password: hashedPassword,
+        nickname,
+      };
+      await this.saveUser(toSaveUser);
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
   async saveUser(toSaveUser: UserSignUpDto): Promise<any> {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -87,9 +92,14 @@ export class UsersService {
       user.password,
       parseInt(process.env.PASSWORD_HASH_SALT),
     );
-    await this.usersRepository.update(id, {
-      password: hashedPassword,
-    });
+    try {
+      await this.usersRepository.update(id, {
+        password: hashedPassword,
+      });
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 
   async updateNickname(user: Users, nickname: string) {
@@ -138,8 +148,9 @@ export class UsersService {
 
   @UseGuards()
   async getUserPosts(uid: number) {
-    const manager = await this.dataSource.query(
-      `select IU.url as imageUrl,P.title as postTitle,P.id As postId from users AS U
+    try {
+      const manager = await this.dataSource.query(
+        `select IU.url as imageUrl,P.title as postTitle,P.id As postId from users AS U
       LEFT JOIN posts AS P
       ON P.userId = U.id
       LEFT JOIN images as I
@@ -148,14 +159,19 @@ export class UsersService {
       ON I.imageUrlId = IU.id
       where U.id=? AND P.deletedAt is null;
     `,
-      [uid],
-    );
-    return manager;
+        [uid],
+      );
+      return manager;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
   @UseGuards()
   async getUserLikePosts(uid: number) {
-    const manager = await this.dataSource.query(
-      `select P.title,L.postId,IU.url from users AS U
+    try {
+      const manager = await this.dataSource.query(
+        `select P.title,L.postId,IU.url from users AS U
       LEFT JOIN likes AS L
       ON L.userId = U.id
       LEFT JOIN posts AS P
@@ -165,8 +181,12 @@ export class UsersService {
       LEFT JOIN imageURL AS IU
       ON I.imageUrlId = IU.id
       where U.id = ? AND P.deletedAt is null`,
-      [uid],
-    );
-    return manager;
+        [uid],
+      );
+      return manager;
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException(error);
+    }
   }
 }
