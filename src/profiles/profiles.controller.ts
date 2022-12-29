@@ -13,7 +13,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 @ApiTags('프로필 API')
-@Controller('profiles')
+@Controller('api/profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 

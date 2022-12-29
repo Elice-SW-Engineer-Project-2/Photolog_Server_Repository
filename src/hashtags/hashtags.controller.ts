@@ -5,7 +5,7 @@ import { Users } from 'src/entities';
 import { HashtagsService } from './hashtags.service';
 
 @ApiTags('해시태그 API')
-@Controller('hashtags')
+@Controller('api/hashtags')
 export class HashtagsController {
   constructor(private readonly hashtagsService: HashtagsService) {}
 

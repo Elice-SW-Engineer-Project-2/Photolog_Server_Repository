@@ -5,10 +5,8 @@ import {
   Patch,
   Post,
   UseFilters,
-  Param,
   Get,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -30,7 +28,7 @@ import { Users } from 'src/entities';
 import { UserProfileNicknameUpdateDto } from './dto/user.update.profile-nickname.dto';
 import { CurrentUser } from 'src/common/decorators/user.decorator';
 @ApiTags('유저 API')
-@Controller('users')
+@Controller('api/users')
 @UseFilters(HttpExceptionFilter)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

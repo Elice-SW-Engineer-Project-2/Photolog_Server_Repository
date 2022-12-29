@@ -32,7 +32,7 @@ import { CurrentUser } from 'src/common/decorators/user.decorator';
 
 @ApiTags('포스트 API')
 @UseFilters(HttpExceptionFilter)
-@Controller('posts')
+@Controller('api/posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 

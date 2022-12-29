@@ -24,7 +24,7 @@ import {
 import { AuthResetPasswordDto } from './dtos/auth.reset-password.dto';
 
 @ApiTags('AUTH API')
-@Controller('/auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
