@@ -48,7 +48,7 @@ Photolog Server Readme 페이지 입니다.
 - 마이페이지 자신의 사진 게시물보기
 - 위도 경도 기반 사진 게시판 검색
 - hashtag 기반 검색
-- Cloudflare+AWS lambda 이미지 최적화
+- CloudFront+AWS lambda 이미지 최적화
 - nodemailer 임시 비밀번호 전송
 
 ## Code Convention
