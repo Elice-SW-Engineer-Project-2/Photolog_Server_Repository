@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -22,7 +23,7 @@ export class Posts {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('int', { primary: true, name: 'userId' })
+  @Column('int', { name: 'userId' })
   userId: number;
 
   @Column('varchar', { name: 'title', length: 255 })
@@ -31,12 +32,18 @@ export class Posts {
   @Column('text', { name: 'content' })
   content: string | null;
 
+  @Column('int', { name: 'likesCount', default: 0 })
+  likesCount: number;
+
+  @Exclude()
   @CreateDateColumn()
   createdAt: Date;
 
+  @Exclude()
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Exclude()
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date | null;
 

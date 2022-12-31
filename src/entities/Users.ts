@@ -4,6 +4,7 @@ import {
   DeleteDateColumn,
   Entity,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -11,20 +12,25 @@ import { Comments } from './Comments';
 import { Likes } from './Likes';
 import { Posts } from './Posts';
 import { Profile } from './Profile';
+import { IsEmail, IsNotEmpty } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('users', { schema: 'photolog' })
 export class Users {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ApiProperty()
   @Column('varchar', { name: 'email', length: 50 })
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
 
-  @Column('varchar', { name: 'password', nullable: true, length: 20 })
-  password: string | null;
-
-  @Column('varchar', { name: 'profileImage', nullable: true, length: 255 })
-  profileImage: string | null;
+  @ApiProperty()
+  @Exclude({ toPlainOnly: true })
+  @Column('varchar', { name: 'password', length: 255 })
+  password: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -32,6 +38,7 @@ export class Users {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Exclude()
   @DeleteDateColumn({ nullable: true })
   deletedAt: Date | null;
 
@@ -44,6 +51,6 @@ export class Users {
   @OneToMany(() => Posts, (posts) => posts.user)
   posts: Posts[];
 
-  @OneToMany(() => Profile, (profile) => profile.user)
-  profiles: Profile[];
+  @OneToOne(() => Profile, (profile) => profile.user)
+  profiles: Profile;
 }

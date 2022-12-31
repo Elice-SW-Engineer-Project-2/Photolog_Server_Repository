@@ -1,16 +1,16 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Images } from './Images';
 import { Profile } from './Profile';
 
 @Entity('imageURL', { schema: 'photolog' })
 export class ImageUrl {
-  @Column('int', { primary: true, name: 'id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column('varchar', { name: 'url', length: 255 })
   url: string | null;
 
-  @OneToMany(() => Images, (images) => images.image)
+  @OneToMany(() => Images, (images) => images.imageUrl)
   images: Images[];
 
   @OneToMany(() => Profile, (profile) => profile.image)
