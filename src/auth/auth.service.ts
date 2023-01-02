@@ -6,10 +6,8 @@ import {
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { Request, Response } from 'express';
 import { AuthDto } from './dtos/auth.dto';
 import { JwtService } from '@nestjs/jwt/dist';
-import { AuthResetPasswordDto } from './dtos/auth.reset-password.dto';
 import * as nodeMailer from 'nodemailer';
 interface Tokens {
   accessToken: string;
@@ -118,12 +116,24 @@ export class AuthService {
   generateRandomPassword() {
     const chars =
       '0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numberChars = '0123456789';
     const passwordLength = 12;
     let password = '';
     for (let i = 0; i < passwordLength; i++) {
       const randomNumber = Math.floor(Math.random() * chars.length);
       password += chars.substring(randomNumber, randomNumber + 1);
     }
+
+    //적어도 1개이상의 숫자와 대문자는 포함되어야함.
+    const upperRandomNumber = Math.floor(Math.random() * upperChars.length);
+    password += upperChars.substring(upperRandomNumber, upperRandomNumber + 1);
+
+    const numberRandomNumber = Math.floor(Math.random() * numberChars.length);
+    password += numberChars.substring(
+      numberRandomNumber,
+      numberRandomNumber + 1,
+    );
     return password;
   }
 }
