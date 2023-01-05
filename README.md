@@ -1,7 +1,7 @@
 # Photolog Server
 
 Photolog Server Readme 페이지 입니다.
-[프로젝트 노션](https://www.notion.so/Photo-log-4d4e74884d1540d4ae0dd9583830c275)
+
 
 ## Photolog 서비스소개
 
@@ -29,13 +29,24 @@ Photolog Server Readme 페이지 입니다.
 
 <details>
 <summary>인트로 페이지(인터랙션)</summary>
-<img style="max-width: 100%; height: auto;" src="https://drive.google.com/uc?export=view&id=1j7xPCubR3SVJcoolEirX98dU7ccVFsJG" >
+<img style="max-width: 100%; height: auto;" src="https://user-images.githubusercontent.com/59651691/210131630-6d50021e-764d-46eb-b3ee-6bab952307fc.gif" >
 </details>
 
 <details>
-<summary>지도 활용</summary>
-<img style="max-width: 100%; height: auto;" src="https://drive.google.com/uc?export=view&id=12aX2eQqbcdxOPx7ut2C9szvjIFmwlXo1" >
+<summary>지도 사진게시판</summary>
+<img style="max-width: 100%; height: auto;" src="https://user-images.githubusercontent.com/59651691/210131218-c90c1f98-310e-4da8-add9-024f9e7d2b21.gif" >
 </details>
+
+<details>
+<summary>무한스크롤 사진 게시판</summary>
+<img style="max-width: 100%; height: auto;" src="https://user-images.githubusercontent.com/59651691/210131167-11ab68c7-4157-453b-97db-793ff5938421.gif" >
+</details>
+
+<details>
+<summary>마이 페이지 내 게시글 조회</summary>
+<img style="max-width: 100%; height: auto;" src="https://user-images.githubusercontent.com/59651691/210131349-0f3c3e21-71e8-4352-9d05-0b13118a25b4.gif" >
+</details>
+
 
 
 
@@ -103,6 +114,7 @@ Photolog Server Readme 페이지 입니다.
 
 ```jsx
 mkdir photolog_server
+cd photolog_server
 git clone {....Photolog_Server.git} .
 npm install
 vi .env.dev
@@ -110,6 +122,7 @@ vi .env.staging
 
 cd ..
 mkdir photolog_client
+cd photolog_client
 git clone {....Photolog_Client.git} .
 npm install
 vi .env
